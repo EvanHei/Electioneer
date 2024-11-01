@@ -1,0 +1,11 @@
+# Node modules
+node_modules/
+
+# Truffle build artifacts
+build/
+
+# Environment variables
+.env
+
+# MacOS and other OS-specific files
+.DS_Store
