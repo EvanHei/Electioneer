@@ -35,13 +35,6 @@ contract Ballot {
         _;
     }
 
-    modifier ballotIsActive() {
-        require(block.timestamp >= startTime, "Ballot has not started yet");
-        require(block.timestamp <= endTime, "Ballot has ended");
-        require(ballotActive, "Ballot is not active");
-        _;
-    }
-
     modifier isAuthorized() {
         require(voters[msg.sender].authorized, "Voter is not authorized");
         _;
@@ -75,7 +68,7 @@ contract Ballot {
     function revokeVoterAuthorization(address _voter) external onlyOwner {
         require(voters[_voter].authorized, "Voter is not authorized");
 
-        // decrement vote
+        // Decrement vote
         if (voters[_voter].voted) {
             uint proposalId = voters[_voter].proposalId;
             require(
@@ -85,18 +78,19 @@ contract Ballot {
             proposals[proposalId].voteCount--;
         }
 
-        // revoke authorization
+        // Revoke authorization
         voters[_voter].authorized = false;
         voters[_voter].voted = false;
         emit VoterAuthorizationRevoked(_voter);
     }
 
-    function vote(uint _proposalId) external ballotIsActive isAuthorized {
+    function vote(uint _proposalId) external isAuthorized {
         require(!voters[msg.sender].voted, "Already voted");
         require(
             _proposalId > 0 && _proposalId <= totalProposals,
             "Invalid proposal ID"
         );
+        require(timeRemaining() > 0, "Ballot has ended");
 
         voters[msg.sender].voted = true;
         voters[msg.sender].proposalId = _proposalId;
@@ -143,7 +137,7 @@ contract Ballot {
         voteCount = proposals[winningProposalId].voteCount;
     }
 
-    function timeRemaining() external view returns (uint) {
+    function timeRemaining() public view returns (uint) {
         if (block.timestamp >= endTime) {
             return 0;
         }
