@@ -1,31 +1,31 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-import "./Electioneer.sol";
+import "./Ballot.sol";
 
-contract ElectioneerFactory {
-    address[] public elections;
+contract Electioneer {
+    address[] public ballots;
 
-    event ElectionCreated(
-        address electionAddress,
-        string electionName,
+    event BallotCreated(
+        address ballotAddress,
+        string ballotName,
         address owner
     );
 
-    function createElection(
-        string memory _electionName,
+    function createBallot(
+        string memory _ballotName,
         uint _durationInMinutes
     ) public {
-        Electioneer newElection = new Electioneer(
-            _electionName,
+        Ballot newBallot = new Ballot(
+            _ballotName,
             _durationInMinutes,
             msg.sender
         );
-        elections.push(address(newElection));
-        emit ElectionCreated(address(newElection), _electionName, msg.sender);
+        ballots.push(address(newBallot));
+        emit BallotCreated(address(newBallot), _ballotName, msg.sender);
     }
 
-    function getElections() public view returns (address[] memory) {
-        return elections;
+    function getBallots() public view returns (address[] memory) {
+        return ballots;
     }
 }

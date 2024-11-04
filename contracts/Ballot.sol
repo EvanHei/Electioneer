@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
-contract Electioneer {
-    struct Candidate {
+contract Ballot {
+    struct Proposal {
         uint id;
         string name;
         uint voteCount;
@@ -11,24 +11,24 @@ contract Electioneer {
     struct Voter {
         bool authorized;
         bool voted;
-        uint candidateId;
+        uint proposalId;
     }
 
     address public owner;
     string public electionName;
     bool public electionActive;
-    uint public totalCandidates;
+    uint public totalProposals;
     uint public startTime;
     uint public endTime;
 
-    mapping(uint => Candidate) public candidates;
+    mapping(uint => Proposal) public proposals;
     mapping(address => Voter) public voters;
 
     event ElectionStarted(string name, uint startTime, uint endTime);
-    event CandidateRegistered(uint id, string name);
+    event ProposalRegistered(uint id, string name);
     event VoterAuthorized(address voter);
     event VoterAuthorizationRevoked(address voter);
-    event Voted(address voter, uint candidateId);
+    event Voted(address voter, uint proposalId);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can execute this");
@@ -60,10 +60,10 @@ contract Electioneer {
         emit ElectionStarted(_electionName, startTime, endTime);
     }
 
-    function registerCandidate(string memory _name) public onlyOwner {
-        totalCandidates++;
-        candidates[totalCandidates] = Candidate(totalCandidates, _name, 0);
-        emit CandidateRegistered(totalCandidates, _name);
+    function registerProposal(string memory _name) public onlyOwner {
+        totalProposals++;
+        proposals[totalProposals] = Proposal(totalProposals, _name, 0);
+        emit ProposalRegistered(totalProposals, _name);
     }
 
     function authorizeVoter(address _voter) public onlyOwner {
@@ -78,35 +78,35 @@ contract Electioneer {
         emit VoterAuthorizationRevoked(_voter);
     }
 
-    function vote(uint _candidateId) public electionIsActive isAuthorized {
+    function vote(uint _proposalId) public electionIsActive isAuthorized {
         require(!voters[msg.sender].voted, "Already voted");
         require(
-            _candidateId > 0 && _candidateId <= totalCandidates,
-            "Invalid candidate ID"
+            _proposalId > 0 && _proposalId <= totalProposals,
+            "Invalid proposal ID"
         );
 
         voters[msg.sender].voted = true;
-        voters[msg.sender].candidateId = _candidateId;
-        candidates[_candidateId].voteCount++;
-        emit Voted(msg.sender, _candidateId);
+        voters[msg.sender].proposalId = _proposalId;
+        proposals[_proposalId].voteCount++;
+        emit Voted(msg.sender, _proposalId);
     }
 
-    function getCandidateById(
-        uint _candidateId
-    ) public view returns (Candidate memory) {
+    function getProposalById(
+        uint _proposalId
+    ) public view returns (Proposal memory) {
         require(
-            _candidateId > 0 && _candidateId <= totalCandidates,
-            "Invalid candidate ID"
+            _proposalId > 0 && _proposalId <= totalProposals,
+            "Invalid proposal ID"
         );
-        return candidates[_candidateId];
+        return proposals[_proposalId];
     }
 
-    function getCandidates() public view returns (Candidate[] memory) {
-        Candidate[] memory candidateList = new Candidate[](totalCandidates);
-        for (uint i = 1; i <= totalCandidates; i++) {
-            candidateList[i - 1] = candidates[i];
+    function getProposals() public view returns (Proposal[] memory) {
+        Proposal[] memory proposalList = new Proposal[](totalProposals);
+        for (uint i = 1; i <= totalProposals; i++) {
+            proposalList[i - 1] = proposals[i];
         }
-        return candidateList;
+        return proposalList;
     }
 
     function getWinner()
@@ -117,17 +117,17 @@ contract Electioneer {
         require(!electionActive, "Election is still active");
 
         uint winningVoteCount = 0;
-        uint winningCandidateId = 0;
+        uint winningProposalId = 0;
 
-        for (uint i = 1; i <= totalCandidates; i++) {
-            if (candidates[i].voteCount > winningVoteCount) {
-                winningVoteCount = candidates[i].voteCount;
-                winningCandidateId = i;
+        for (uint i = 1; i <= totalProposals; i++) {
+            if (proposals[i].voteCount > winningVoteCount) {
+                winningVoteCount = proposals[i].voteCount;
+                winningProposalId = i;
             }
         }
 
-        winnerName = candidates[winningCandidateId].name;
-        voteCount = candidates[winningCandidateId].voteCount;
+        winnerName = proposals[winningProposalId].name;
+        voteCount = proposals[winningProposalId].voteCount;
     }
 
     function timeRemaining() public view returns (uint) {
