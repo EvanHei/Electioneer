@@ -15,8 +15,8 @@ contract Ballot {
     }
 
     address public owner;
-    string public electionName;
-    bool public electionActive;
+    string public ballotName;
+    bool public ballotActive;
     uint public totalProposals;
     uint public startTime;
     uint public endTime;
@@ -24,7 +24,7 @@ contract Ballot {
     mapping(uint => Proposal) public proposals;
     mapping(address => Voter) public voters;
 
-    event ElectionStarted(string name, uint startTime, uint endTime);
+    event BallotStarted(string name, uint startTime, uint endTime);
     event ProposalRegistered(uint id, string name);
     event VoterAuthorized(address voter);
     event VoterAuthorizationRevoked(address voter);
@@ -35,10 +35,10 @@ contract Ballot {
         _;
     }
 
-    modifier electionIsActive() {
-        require(block.timestamp >= startTime, "Election has not started yet");
-        require(block.timestamp <= endTime, "Election has ended");
-        require(electionActive, "Election is not active");
+    modifier ballotIsActive() {
+        require(block.timestamp >= startTime, "Ballot has not started yet");
+        require(block.timestamp <= endTime, "Ballot has ended");
+        require(ballotActive, "Ballot is not active");
         _;
     }
 
@@ -48,16 +48,16 @@ contract Ballot {
     }
 
     constructor(
-        string memory _electionName,
+        string memory _ballotName,
         uint _durationInMinutes,
         address _owner
     ) {
         owner = _owner;
-        electionName = _electionName;
+        ballotName = _ballotName;
         startTime = block.timestamp;
         endTime = startTime + (_durationInMinutes * 1 minutes);
-        electionActive = true;
-        emit ElectionStarted(_electionName, startTime, endTime);
+        ballotActive = true;
+        emit BallotStarted(_ballotName, startTime, endTime);
     }
 
     function registerProposal(string memory _name) public onlyOwner {
@@ -78,7 +78,7 @@ contract Ballot {
         emit VoterAuthorizationRevoked(_voter);
     }
 
-    function vote(uint _proposalId) public electionIsActive isAuthorized {
+    function vote(uint _proposalId) public ballotIsActive isAuthorized {
         require(!voters[msg.sender].voted, "Already voted");
         require(
             _proposalId > 0 && _proposalId <= totalProposals,
@@ -114,7 +114,7 @@ contract Ballot {
         view
         returns (string memory winnerName, uint voteCount)
     {
-        require(!electionActive, "Election is still active");
+        require(!ballotActive, "Ballot is still active");
 
         uint winningVoteCount = 0;
         uint winningProposalId = 0;
