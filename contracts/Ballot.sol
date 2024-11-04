@@ -60,21 +60,22 @@ contract Ballot {
         emit BallotStarted(_ballotName, startTime, endTime);
     }
 
-    function registerProposal(string memory _name) public onlyOwner {
+    // proposals can represent a candidate, bill, law, etc.
+    function registerProposal(string memory _name) external onlyOwner {
         totalProposals++;
         proposals[totalProposals] = Proposal(totalProposals, _name, 0);
         emit ProposalRegistered(totalProposals, _name);
     }
 
-    function authorizeVoter(address _voter) public onlyOwner {
+    function authorizeVoter(address _voter) external onlyOwner {
         voters[_voter].authorized = true;
         emit VoterAuthorized(_voter);
     }
 
-    function revokeVoterAuthorization(address _voter) public onlyOwner {
+    function revokeVoterAuthorization(address _voter) external onlyOwner {
         require(voters[_voter].authorized, "Voter is not authorized");
 
-        // take away vote
+        // decrement vote
         if (voters[_voter].voted) {
             uint proposalId = voters[_voter].proposalId;
             require(
@@ -90,7 +91,7 @@ contract Ballot {
         emit VoterAuthorizationRevoked(_voter);
     }
 
-    function vote(uint _proposalId) public ballotIsActive isAuthorized {
+    function vote(uint _proposalId) external ballotIsActive isAuthorized {
         require(!voters[msg.sender].voted, "Already voted");
         require(
             _proposalId > 0 && _proposalId <= totalProposals,
@@ -113,7 +114,7 @@ contract Ballot {
         return proposals[_proposalId];
     }
 
-    function getProposals() public view returns (Proposal[] memory) {
+    function getProposals() external view returns (Proposal[] memory) {
         Proposal[] memory proposalList = new Proposal[](totalProposals);
         for (uint i = 1; i <= totalProposals; i++) {
             proposalList[i - 1] = proposals[i];
@@ -122,7 +123,7 @@ contract Ballot {
     }
 
     function getWinner()
-        public
+        external
         view
         returns (string memory winnerName, uint voteCount)
     {
@@ -142,7 +143,7 @@ contract Ballot {
         voteCount = proposals[winningProposalId].voteCount;
     }
 
-    function timeRemaining() public view returns (uint) {
+    function timeRemaining() external view returns (uint) {
         if (block.timestamp >= endTime) {
             return 0;
         }
