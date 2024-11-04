@@ -73,8 +73,20 @@ contract Ballot {
 
     function revokeVoterAuthorization(address _voter) public onlyOwner {
         require(voters[_voter].authorized, "Voter is not authorized");
-        require(!voters[_voter].voted, "Voter has already voted");
+
+        // take away vote
+        if (voters[_voter].voted) {
+            uint proposalId = voters[_voter].proposalId;
+            require(
+                proposalId > 0 && proposalId <= totalProposals,
+                "Invalid proposal ID"
+            );
+            proposals[proposalId].voteCount--;
+        }
+
+        // revoke authorization
         voters[_voter].authorized = false;
+        voters[_voter].voted = false;
         emit VoterAuthorizationRevoked(_voter);
     }
 
