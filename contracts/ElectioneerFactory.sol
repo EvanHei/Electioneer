@@ -15,7 +15,7 @@ contract Electioneer {
     function createBallot(
         string memory _ballotName,
         uint _durationInMinutes
-    ) public {
+    ) external {
         Ballot newBallot = new Ballot(
             _ballotName,
             _durationInMinutes,

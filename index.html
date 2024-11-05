@@ -4,11 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Electioneer</title>
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
 </head>
+
 <body>
+    <input type="text" class="search-bar" placeholder="Search" />
+
+    <div class="search-line"></div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('all')">All</div>
+        <div class="tab" onclick="showTab('myBallots')">My Ballots</div>
+        <div class="tab" onclick="showTab('authorized')">Authorized</div>
+    </div>
+
     <script src="script.js"></script>
-</body>
-</html>
 </body>
 </html>

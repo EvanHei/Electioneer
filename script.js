@@ -1,7 +1,7 @@
 var electioneer;
 var userAccount;
 
-// SimpleStorage contract address. Must be updated to match Ganache
+// Contract address must be updated to match Ganache
 const CONTRACT_ADDRESS = "";
 const ABI_PATH = "build/contracts/Electioneer.json";
 
@@ -38,20 +38,6 @@ async function connectToEthereum() {
 
 // Bind UI button click events to contract functions
 function bindUIEvents() {
-    var setValueButton = document.getElementById("setValueButton");
-    var getValueButton = document.getElementById("getValueButton");
-
-    setValueButton.addEventListener("click", async () => {
-        const value = document.getElementById("valueInput").value;
-        await electioneer.methods.set(value).send({ from: userAccount });
-        console.log(`Value set to ${value}`);
-    });
-
-    getValueButton.addEventListener("click", async () => {
-        const storedValue = await electioneer.methods.get().call();
-        document.getElementById("storedValue").innerText = storedValue;
-        console.log(`Stored value: ${storedValue}`);
-    });
 }
 
 // Initialize the web app
@@ -60,3 +46,14 @@ window.addEventListener("load", async () => {
     await loadContract();
     bindUIEvents();
 });
+
+function showTab(tabName) {
+    // Remove active class from all tabs
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+        tab.classList.remove('active');
+    });
+
+    // Set the clicked tab as active
+    document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
+}
