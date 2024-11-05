@@ -1,56 +1,19 @@
-var electioneer;
-var userAccount;
+import { loadContract, connectToEthereum, electioneer, userAccount } from './ethereum.js';
 
-// Contract address must be updated to match Ganache
-const CONTRACT_ADDRESS = "";
-const ABI_PATH = "build/contracts/Electioneer.json";
-
-// Load the contract ABI from the specified JSON file and initialize the contract instance
-async function loadContract() {
-    try {
-        const response = await fetch(ABI_PATH);
-        const contractData = await response.json();
-        const abi = contractData.abi;
-        electioneer = new web3.eth.Contract(abi, CONTRACT_ADDRESS);
-    } catch (error) {
-        console.error("Failed to load contract ABI:", error);
-    }
-}
-
-// Connect to the Ethereum provider (MetaMask or other web3 provider) and fetch user account
-async function connectToEthereum() {
-    if (window.ethereum) {
-        window.web3 = new Web3(window.ethereum);
-        try {
-            const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-            userAccount = accounts[0];
-        } catch (error) {
-            console.error("User denied account access", error);
-        }
-    } else if (window.web3) {
-        window.web3 = new Web3(window.web3.currentProvider);
-        const accounts = await web3.eth.getAccounts();
-        userAccount = accounts[0];
-    } else {
-        console.log("Non-Ethereum browser detected. You should consider trying MetaMask!");
-    }
-}
-
-// Bind UI button click events to contract functions
+// Bind UI events to functions
 function bindUIEvents() {
     var allTab = document.getElementById('allTab');
     var myBallotsTab = document.getElementById('myBallotsTab');
     var authorizedTab = document.getElementById('authorizedTab');
 
-    // Set up click event handlers using the tab variables
     allTab.onclick = function() {
-        showTab('all');
+        showAllTab();
     };
     myBallotsTab.onclick = function() {
-        showTab('myBallots');
+        showMyBallotsTab();
     };
     authorizedTab.onclick = function() {
-        showTab('authorized');
+        showAuthorizedTab();
     };
 }
 
@@ -59,17 +22,77 @@ window.addEventListener("load", async () => {
     await connectToEthereum();
     await loadContract();
     bindUIEvents();
+    allTab.click();
 });
 
-function showTab(tabName) {
+async function showAllTab() {
     // Remove active class from all tabs
     const tabs = document.querySelectorAll('.tab');
     tabs.forEach(tab => {
         tab.classList.remove('active');
     });
 
-    const activeTab = document.getElementById(`${tabName}Tab`);
-    if (activeTab) {
-        activeTab.classList.add('active');
-    }
+    allTab.classList.add('active');
+
+    // Load content
+    // TODO: replace with actual ballots
+    const content = `
+      <div class="item-list">
+          <div class="item">
+              Item 1
+              <span class="subscript">Subscript 1</span>
+          </div>
+          <div class="item">
+              Item 2
+              <span class="subscript">Subscript 2</span>
+          </div>
+          <div class="item">
+              Item 3
+              <span class="subscript">Subscript 3</span>
+          </div>
+          <div class="item">
+              Item 4
+              <span class="subscript">Subscript 4</span>
+          </div>
+          <div class="item">
+              Item 5
+              <span class="subscript">Subscript 5</span>
+          </div>
+      </div>
+    `;
+  
+    const contentContainer = document.getElementById("content");
+    contentContainer.innerHTML = content;
+}
+
+async function showMyBallotsTab() {
+    // Remove active class from all tabs
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+        tab.classList.remove('active');
+    });
+
+    myBallotsTab.classList.add('active');
+
+    // Load content
+    const content = `Loading...`;
+  
+    const contentContainer = document.getElementById("content");
+    contentContainer.innerHTML = content;
+}
+
+async function showAuthorizedTab() {
+    // Remove active class from all tabs
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+        tab.classList.remove('active');
+    });
+
+    authorizedTab.classList.add('active');
+
+    // Load content
+    const content = `Loading...`;
+  
+    const contentContainer = document.getElementById("content");
+    contentContainer.innerHTML = content;
 }
