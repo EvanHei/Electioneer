@@ -40,13 +40,16 @@ body {
     display: flex;
     cursor: pointer;
     margin: 40px 0;
+    width: 100%;
+    max-width: 500px;
 }
 
 .tab {
+    flex: 1;
+    text-align: center;
     padding: 10px 20px;
     border: none;
     background-color: rgb(32, 32, 32);
-    margin-right: 20px;
     position: relative;
     color: white;
 }
@@ -102,4 +105,19 @@ body {
     color: rgba(255, 255, 255, 0.7);
     display: block;
     margin-top: 3px;
+}
+
+#createButton {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: rgb(50, 50, 50);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#createButton:hover {
+    background-color: rgb(70, 70, 70);
 }
