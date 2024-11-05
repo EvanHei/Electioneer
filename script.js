@@ -38,6 +38,20 @@ async function connectToEthereum() {
 
 // Bind UI button click events to contract functions
 function bindUIEvents() {
+    var allTab = document.getElementById('allTab');
+    var myBallotsTab = document.getElementById('myBallotsTab');
+    var authorizedTab = document.getElementById('authorizedTab');
+
+    // Set up click event handlers using the tab variables
+    allTab.onclick = function() {
+        showTab('all');
+    };
+    myBallotsTab.onclick = function() {
+        showTab('myBallots');
+    };
+    authorizedTab.onclick = function() {
+        showTab('authorized');
+    };
 }
 
 // Initialize the web app
@@ -54,6 +68,8 @@ function showTab(tabName) {
         tab.classList.remove('active');
     });
 
-    // Set the clicked tab as active
-    document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
+    const activeTab = document.getElementById(`${tabName}Tab`);
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
 }
