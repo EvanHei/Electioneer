@@ -50,6 +50,7 @@ export async function loadBallots() {
             processedBallots.push({
                 name: name,
                 address: address,
+                owner: owner
             });
         }
         return processedBallots;
