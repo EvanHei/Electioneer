@@ -28,4 +28,11 @@ contract Electioneer {
     function getBallots() public view returns (address[] memory) {
         return ballots;
     }
+
+    function getBallotDetails(
+        address _address
+    ) public view returns (string memory ballotName, address owner) {
+        Ballot ballot = Ballot(_address);
+        return (ballot.name(), ballot.owner());
+    }
 }

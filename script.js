@@ -1,11 +1,10 @@
-import { loadContract, connectToEthereum, electioneer, userAccount } from './ethereum.js';
+import { loadContract, connectToEthereum, loadBallots, electioneer, userAccount } from './ethereum.js';
 
 // Bind UI events to functions
 function bindUIEvents() {
     var allTab = document.getElementById('allTab');
     var myBallotsTab = document.getElementById('myBallotsTab');
     var authorizedTab = document.getElementById('authorizedTab');
-    var createButton = document.getElementById('createButton');
 
     allTab.onclick = function() {
         showAllTab();
@@ -35,33 +34,19 @@ async function showAllTab() {
 
     allTab.classList.add('active');
 
-    // Load content
-    // TODO: replace with actual ballots
-    const content = `
-      <div class="item-list">
-          <div class="item">
-              Item 1
-              <span class="subscript">Subscript 1</span>
-          </div>
-          <div class="item">
-              Item 2
-              <span class="subscript">Subscript 2</span>
-          </div>
-          <div class="item">
-              Item 3
-              <span class="subscript">Subscript 3</span>
-          </div>
-          <div class="item">
-              Item 4
-              <span class="subscript">Subscript 4</span>
-          </div>
-          <div class="item">
-              Item 5
-              <span class="subscript">Subscript 5</span>
-          </div>
-      </div>
-    `;
-  
+    // Load ballots
+    const ballots = await loadBallots();
+    let content = '<div class="item-list">';
+    for (const ballot of ballots) {
+        content += `
+            <div class="item">
+                ${ballot.name}
+                <span class="subscript">${ballot.address}</span>
+            </div>
+        `;
+    }
+    content += '</div>';
+
     const contentContainer = document.getElementById("content");
     contentContainer.innerHTML = content;
 }
@@ -82,16 +67,19 @@ async function showMyBallotsTab() {
 
     const createButton = document.getElementById("createButton");
     createButton.onclick = async function() {
+
+        // Get input
         const ballotName = window.prompt('Enter ballot name:');
         const durationInMinutes = window.prompt('Enter duration in minutes:');
-
+        
+        // Validate
         if (!ballotName || !durationInMinutes) {
             alert('Please enter both ballot name and duration.');
             return;
         }
-
         const duration = parseInt(durationInMinutes, 10);
 
+        // Create ballot
         try {
             await electioneer.methods.createBallot(ballotName, duration).send({ from: userAccount });
             alert('Ballot created successfully!');

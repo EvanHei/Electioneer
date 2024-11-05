@@ -15,8 +15,8 @@ contract Ballot {
     }
 
     address public owner;
-    string public ballotName;
-    bool public ballotActive;
+    string public name;
+    bool public active;
     uint public totalProposals;
     uint public startTime;
     uint public endTime;
@@ -40,17 +40,13 @@ contract Ballot {
         _;
     }
 
-    constructor(
-        string memory _ballotName,
-        uint _durationInMinutes,
-        address _owner
-    ) {
+    constructor(string memory _name, uint _durationInMinutes, address _owner) {
         owner = _owner;
-        ballotName = _ballotName;
+        name = _name;
         startTime = block.timestamp;
         endTime = startTime + (_durationInMinutes * 1 minutes);
-        ballotActive = true;
-        emit BallotStarted(_ballotName, startTime, endTime);
+        active = true;
+        emit BallotStarted(_name, startTime, endTime);
     }
 
     // proposals can represent a candidate, bill, law, etc.
@@ -121,7 +117,7 @@ contract Ballot {
         view
         returns (string memory winnerName, uint voteCount)
     {
-        require(!ballotActive, "Ballot is still active");
+        require(!active, "Ballot is still active");
 
         uint winningVoteCount = 0;
         uint winningProposalId = 0;
