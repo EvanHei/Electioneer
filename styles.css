@@ -82,10 +82,22 @@ body {
     width: 500px;
     padding: 10px;
     margin: 10px 0;
-    color: white;
     text-align: left;
     transition: color 0.2s;
     position: relative;
+}
+
+.wrench-button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s;
 }
 
 .item::after {

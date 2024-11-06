@@ -59,8 +59,9 @@ async function myBallotsTabClick() {
     for (const ballot of myBallots) {
         content += `
         <div class="item">
-        ${ballot.name}
-        <span class="subscript">${ballot.address}</span>
+            <span>${ballot.name}</span>
+            <span class="subscript">${ballot.address}</span>
+            <button class="wrench-button" onclick="wrenchClick('${ballot.address}')">🔧️</button>
         </div>
         `;
     }
