@@ -36,6 +36,54 @@ body {
     margin-bottom: 20px;
 }
 
+.input-field {
+    width: 500px;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-field input {
+    width: 100%;
+    padding: 10px;
+    padding-left: 20px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    background-color: rgb(50, 50, 50);
+    font-size: 16px;
+    color: white;
+}
+
+.input-field input:focus {
+    outline: none;
+    border-color: #8B0000;
+}
+
+.input-field button.input-arrow {
+    position: absolute;
+    right: 1px;
+    top: 50%;
+    transform: translateY(-27%);
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s;
+}
+
+.input-field button.input-arrow:hover {
+    color: #8B0000;
+}
+
+.input-field label {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 5px;
+    display: block;
+    margin-left: 5px;
+}
+
 .tabs {
     display: flex;
     cursor: pointer;
@@ -119,7 +167,7 @@ body {
     margin-top: 3px;
 }
 
-#createButton {
+.button {
     margin-top: 20px;
     padding: 10px 20px;
     background-color: rgb(50, 50, 50);
@@ -130,7 +178,7 @@ body {
     transition: background-color 0.2s;
 }
 
-#createButton:hover {
+.button:hover {
     background-color: rgb(70, 70, 70);
 }
 

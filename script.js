@@ -61,17 +61,62 @@ async function myBallotsTabClick() {
         <div class="item">
             <span>${ballot.name}</span>
             <span class="subscript">${ballot.address}</span>
-            <button class="wrench-button" onclick="wrenchClick('${ballot.address}')">🔧️</button>
+            <button class="wrench-button">🔧️</button>
         </div>
         `;
     }
     content += '</div>';
 
     // Configure Create button
-    content += '<button id="createButton">Create</button>';
+    content += '<button class="button" id="createButton">Create</button>';
     contentContainer.innerHTML = content;
     const createButton = document.getElementById("createButton");
     createButton.onclick = createButtonClick;
+
+    // Configure 🔧️ buttons
+    const wrenchButtons = document.querySelectorAll('.wrench-button');
+    wrenchButtons.forEach((button) => {
+        button.addEventListener('click', (event) => {
+            const item = event.target.closest('.item');
+            
+            // Generate content
+            content = `
+                <h2>${item.querySelector('span').textContent}</h2>
+                
+                <!-- Authorize Input Field -->
+                <div class="input-field">
+                    <label for="authorizeAddress">Authorize</label>
+                    <input type="text" id="authorizeAddress">
+                    <button class="input-arrow">→</button>
+                </div>
+
+                <!-- Revoke Input Field -->
+                <div class="input-field">
+                    <label for="revokeAddress">Revoke</label>
+                    <input type="text" id="revokeAddress">
+                    <button class="input-arrow">→</button>
+                </div>
+
+                <!-- New Proposal Input Field -->
+                <div class="input-field">
+                    <label for="newProposal">New Proposal</label>
+                    <input type="text" id="newProposal">
+                    <button class="input-arrow">→</button>
+                </div>                 
+            `;
+
+            // Configure Back button
+            content += '<button class="button" id="backButton">Back</button>';
+            contentContainer.innerHTML = content;
+            const backButton = document.getElementById("backButton");
+
+            // TODO: refactor to assign onclick like below
+            // backButton.onclick = backButtonClick;
+            backButton.addEventListener('click', () => {
+                myBallotsTabClick();
+            });
+        });
+    });
 }
 
 async function authorizedTabClick() {
