@@ -21,14 +21,7 @@ window.addEventListener("load", async () => {
 });
 
 async function allTabClick() {
-    // TODO: refactor into a separate method
-    // Remove active class from all tabs
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(tab => {
-        tab.classList.remove('active');
-    });
-
-    allTab.classList.add('active');
+    activateTab(allTab);
 
     // Load ballots
     const ballots = await loadBallots();
@@ -47,13 +40,7 @@ async function allTabClick() {
 }
 
 async function myBallotsTabClick() {
-    // Remove active class from all tabs
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(tab => {
-        tab.classList.remove('active');
-    });
-
-    myBallotsTab.classList.add('active');
+    activateTab(myBallotsTab);
         
     // Load only the user's ballots
     const ballots = await loadBallots();
@@ -87,13 +74,7 @@ async function myBallotsTabClick() {
 }
 
 async function authorizedTabClick() {
-    // Remove active class from all tabs
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(tab => {
-        tab.classList.remove('active');
-    });
-
-    authorizedTab.classList.add('active');
+    activateTab(authorizedTab);
 
     // Load content
     const content = `Loading...`;
@@ -121,4 +102,10 @@ async function createButtonClick() {
         console.error('Error creating ballot:', error);
         alert('Failed to create ballot.');
     }
+}
+
+function activateTab(tab) {
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
 }
