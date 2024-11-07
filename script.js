@@ -1,4 +1,4 @@
-import { loadContract, connectToEthereum, loadBallots, electioneer, userAccount } from './ethereum.js';
+import { loadContract, connectToEthereum, loadBallots, addProposal, getProposals, electioneer, userAccount } from './ethereum.js';
 const contentContainer = document.getElementById("content");
 
 // Bind UI events to functions
@@ -28,7 +28,7 @@ async function allTabClick() {
     let content = '<div class="item-list">';
     for (const ballot of ballots) {
         content += `
-            <div class="item">
+            <div class="item" data-address="${ballot.address}">
                 ${ballot.name}
                 <span class="subscript">${ballot.address}</span>
             </div>
@@ -58,7 +58,7 @@ async function myBallotsTabClick() {
     let content = '<div class="item-list">';
     for (const ballot of myBallots) {
         content += `
-        <div class="item">
+        <div class="item" data-address="${ballot.address}">
             <span>${ballot.name}</span>
             <span class="subscript">${ballot.address}</span>
             <button class="wrench-button">🔧️</button>
@@ -76,47 +76,91 @@ async function myBallotsTabClick() {
     // Configure 🔧️ buttons
     const wrenchButtons = document.querySelectorAll('.wrench-button');
     wrenchButtons.forEach((button) => {
-        button.addEventListener('click', (event) => {
+        button.addEventListener('click', async (event) => {
             const item = event.target.closest('.item');
-            
+            const ballotAddress = item.getAttribute('data-address');
+            const proposals = await getProposals(ballotAddress);
+            const proposalNames = proposals.map(proposal => proposal.name);
+
             // Generate content
             content = `
                 <h2>${item.querySelector('span').textContent}</h2>
                 
                 <!-- Authorize Input Field -->
                 <div class="input-field">
-                    <label for="authorizeAddress">Authorize</label>
-                    <input type="text" id="authorizeAddress">
-                    <button class="input-arrow">→</button>
+                    <label for="authorizeInput">Authorize</label>
+                    <input type="text" id="authorizeInput">
+                    <button id="authroizeArrowButton" class="input-arrow">→</button>
                 </div>
 
                 <!-- Revoke Input Field -->
                 <div class="input-field">
-                    <label for="revokeAddress">Revoke</label>
-                    <input type="text" id="revokeAddress">
-                    <button class="input-arrow">→</button>
+                    <label for="revokeInput">Revoke</label>
+                    <input type="text" id="revokeInput">
+                    <button id="revokeArrowButton" class="input-arrow">→</button>
                 </div>
 
                 <!-- New Proposal Input Field -->
                 <div class="input-field">
-                    <label for="newProposal">New Proposal</label>
-                    <input type="text" id="newProposal">
-                    <button class="input-arrow">→</button>
-                </div>                 
+                    <label for="newProposalInput">New Proposal</label>
+                    <input type="text" id="newProposalInput">
+                    <button id="newProposalArrowButton" class="input-arrow">→</button>
+                </div>
+                
+                <!-- Proposals List -->
+                <h2>Proposals</h2>
+                <ul>
             `;
-
+            
+            // TODO: format better and make
+            // Add each proposal to the list
+            if (proposalNames && proposalNames.length > 0) {
+                proposalNames.forEach((proposalName) => {
+                    content += `
+                    <li>${proposalName}</li>
+                    `;
+                });
+            } else {
+                content += `<li>No proposals.</li>`;
+            }
+            
+            content += `
+            </ul>
+            </div>
+            `;
+            
+            // TODO: move back button above proposal list
             // Configure Back button
             content += '<button class="button" id="backButton">Back</button>';
             contentContainer.innerHTML = content;
             const backButton = document.getElementById("backButton");
+            backButton.onclick = myBallotsTabClick;
 
-            // TODO: refactor to assign onclick like below
-            // backButton.onclick = backButtonClick;
-            backButton.addEventListener('click', () => {
-                myBallotsTabClick();
-            });
+            // Configure → buttons
+            const authorizeArrowButton = document.getElementById("authroizeArrowButton");
+            const revokeArrowButton = document.getElementById("revokeArrowButton");
+            const newProposalArrowButton = document.getElementById("newProposalArrowButton");
+            authorizeArrowButton.onclick = () => authorizeArrowButtonClick(ballotAddress);
+            revokeArrowButton.onclick = () => revokeArrowClick(ballotAddress);
+            newProposalArrowButton.onclick = () => newProposalArrowClick(ballotAddress);
         });
     });
+}
+
+function authorizeArrowButtonClick(ballotAddress) {
+    const authorizeInput = document.getElementById("authorizeInput").value;
+}
+
+function revokeArrowClick(ballotAddress) {
+    const revokeInput = document.getElementById("revokeInput").value;
+}
+
+function newProposalArrowClick(ballotAddress) {
+    const newProposalInput = document.getElementById("newProposalInput").value;
+    addProposal(newProposalInput, ballotAddress);
+
+    // TODO: change to redisplay the current page (editing the current ballot)
+    myBallotsTab.click();
 }
 
 async function authorizedTabClick() {
@@ -148,6 +192,8 @@ async function createButtonClick() {
         console.error('Error creating ballot:', error);
         alert('Failed to create ballot.');
     }
+
+    myBallotsTab.click();
 }
 
 function activateTab(tab) {
