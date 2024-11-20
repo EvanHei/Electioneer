@@ -7,9 +7,11 @@ const contentContainer = document.getElementById("content");
 export async function myBallotsTabClick() {
     activateTab(document.getElementById('myBallotsTab'));
 
+    // load and filter my ballots
     const ballots = await loadBallots();
     const myBallots = ballots.filter(ballot => ballot.owner.toLowerCase() === userAccount.toLowerCase());
 
+    // populate content
     let content = '<div class="item-list">';
     for (const ballot of myBallots) {
         content += `
@@ -20,11 +22,17 @@ export async function myBallotsTabClick() {
             </div>
         `;
     }
-    content += '</div><button class="button" id="createButton">Create</button>';
 
+    content += `
+    </div>
+    `;
+
+    // Configure Create button
+    content += '<button class="button" id="createButton">Create</button>';
     contentContainer.innerHTML = content;
     document.getElementById("createButton").onclick = createButtonClick;
 
+    // Configure Wrench butons
     document.querySelectorAll('.wrench-button').forEach(button => {
         button.addEventListener('click', async (event) => {
             const item = event.target.closest('.item');
@@ -35,9 +43,12 @@ export async function myBallotsTabClick() {
 }
 
 async function displayBallotDetails(ballotAddress, item) {
+
+    // load proposals
     const proposals = await getProposals(ballotAddress);
     const proposalNames = proposals.map(proposal => proposal.name);
 
+    // populate content
     content = `
     <h2>${item.querySelector('span').textContent}</h2>
     
@@ -64,43 +75,39 @@ async function displayBallotDetails(ballotAddress, item) {
     
     <!-- Proposals List -->
     <h2>Proposals</h2>
-    <ul>
     `;
 
-    // TODO: format better and make
+    // TODO: show votes to the right of each list item
     // Add each proposal to the list
     if (proposalNames && proposalNames.length > 0) {
         proposalNames.forEach((proposalName) => {
             content += `
-            <li>${proposalName}</li>
+            <div class="item">
+                ${proposalName}
+            </div>
             `;
         });
     } else {
-        content += `<li>No proposals.</li>`;
+        content += `
+            <div class="item">
+                No proposals.
+            </div>
+        `;
     }
 
     content += `
-    </ul>
     </div>
     `;
 
-    // TODO: move back button above proposal list
     // Configure Back button
     content += '<button class="button" id="backButton">Back</button>';
-    contentContainer.innerHTML = content;
-    const backButton = document.getElementById("backButton");
-    backButton.onclick = myBallotsTabClick;
-
     contentContainer.innerHTML = content;
     document.getElementById("backButton").onclick = myBallotsTabClick;
 
     // Configure → buttons
-    const authorizeArrowButton = document.getElementById("authroizeArrowButton");
-    const revokeArrowButton = document.getElementById("revokeArrowButton");
-    const newProposalArrowButton = document.getElementById("newProposalArrowButton");
-    authorizeArrowButton.onclick = () => authorizeArrowButtonClick(ballotAddress);
-    revokeArrowButton.onclick = () => revokeArrowClick(ballotAddress);
-    newProposalArrowButton.onclick = () => newProposalArrowClick(ballotAddress);
+    document.getElementById("authroizeArrowButton").onclick = () => authorizeArrowButtonClick(ballotAddress);
+    document.getElementById("revokeArrowButton").onclick = () => revokeArrowClick(ballotAddress);
+    document.getElementById("newProposalArrowButton").onclick = () => newProposalArrowClick(ballotAddress);
 }
 
 function authorizeArrowButtonClick(ballotAddress) {
