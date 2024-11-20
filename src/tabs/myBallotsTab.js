@@ -78,7 +78,7 @@ async function displayBallotDetails(ballotAddress, item) {
     `;
 
     // TODO: show votes to the right of each list item
-    // Add each proposal to the list
+    // add each proposal to the list
     if (proposalNames && proposalNames.length > 0) {
         proposalNames.forEach((proposalName) => {
             content += `
@@ -99,15 +99,15 @@ async function displayBallotDetails(ballotAddress, item) {
     </div>
     `;
 
-    // Configure Back button
+    // configure Back button
     content += '<button class="button" id="backButton">Back</button>';
     contentContainer.innerHTML = content;
     document.getElementById("backButton").onclick = myBallotsTabClick;
 
-    // Configure → buttons
+    // configure → buttons
     document.getElementById("authroizeArrowButton").onclick = () => authorizeArrowButtonClick(ballotAddress);
     document.getElementById("revokeArrowButton").onclick = () => revokeArrowClick(ballotAddress);
-    document.getElementById("newProposalArrowButton").onclick = () => newProposalArrowClick(ballotAddress);
+    document.getElementById("newProposalArrowButton").onclick = () => newProposalArrowClick(ballotAddress, item);
 }
 
 function authorizeArrowButtonClick(ballotAddress) {
@@ -118,27 +118,27 @@ function revokeArrowClick(ballotAddress) {
     const revokeInput = document.getElementById("revokeInput").value;
 }
 
-function newProposalArrowClick(ballotAddress) {
+async function newProposalArrowClick(ballotAddress, item) {
     const newProposalInput = document.getElementById("newProposalInput").value;
-    addProposal(newProposalInput, ballotAddress);
+    await addProposal(newProposalInput, ballotAddress);
 
-    // TODO: change to redisplay the current page (editing the current ballot)
-    myBallotsTab.click();
+    // refresh proposal list
+    await displayBallotDetails(ballotAddress, item);
 }
 
 async function createButtonClick() {
-    // Get input
+    // get input
     const ballotName = window.prompt('Enter ballot name:');
     const durationInMinutes = window.prompt('Enter duration in minutes:');
     
-    // Validate
+    // validate
     if (!ballotName || !durationInMinutes) {
         alert('Please enter both ballot name and duration.');
         return;
     }
     const duration = parseInt(durationInMinutes, 10);
 
-    // Create ballot
+    // create ballot
     try {
         await electioneer.methods.createBallot(ballotName, duration).send({ from: userAccount });
         alert('Ballot created successfully!');
