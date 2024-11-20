@@ -123,11 +123,10 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 20px;
 }
 
 .item {
-    width: 500px;
+    width: 470px;
     padding: 10px;
     margin: 10px 0;
     text-align: left;
@@ -187,4 +186,14 @@ body {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+}
+
+.scrollable-box {
+    width: 500px;
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    padding: 10px;
+    border-radius: 10px;
+    background-color: rgb(50, 50, 50);
 }

@@ -1,4 +1,4 @@
-import { loadBallots, getProposals, addProposal, userAccount } from '../ethereum.js';
+import { loadBallots, getProposals, addProposal, authorizeVoter, userAccount } from '../ethereum.js';
 import { activateTab } from '../helpers.js';
 import { electioneer } from '../ethereum.js';
 
@@ -11,8 +11,8 @@ export async function myBallotsTabClick() {
     const ballots = await loadBallots();
     const myBallots = ballots.filter(ballot => ballot.owner.toLowerCase() === userAccount.toLowerCase());
 
-    // populate content
-    let content = '<div class="item-list">';
+    // populate ballot list
+    let content = '<div class="scrollable-box"><div class="item-list">';
     for (const ballot of myBallots) {
         content += `
             <div class="item" data-address="${ballot.address}">
@@ -22,17 +22,16 @@ export async function myBallotsTabClick() {
             </div>
         `;
     }
-
     content += `
-    </div>
+        </div></div>
     `;
 
-    // Configure Create button
+    // configure Create button
     content += '<button class="button" id="createButton">Create</button>';
     contentContainer.innerHTML = content;
     document.getElementById("createButton").onclick = createButtonClick;
 
-    // Configure Wrench butons
+    // configure Wrench butons
     document.querySelectorAll('.wrench-button').forEach(button => {
         button.addEventListener('click', async (event) => {
             const item = event.target.closest('.item');
@@ -48,7 +47,7 @@ async function displayBallotDetails(ballotAddress, item) {
     const proposals = await getProposals(ballotAddress);
     const proposalNames = proposals.map(proposal => proposal.name);
 
-    // populate content
+    // populate input fields
     content = `
     <h2>${item.querySelector('span').textContent}</h2>
     
@@ -78,6 +77,11 @@ async function displayBallotDetails(ballotAddress, item) {
     `;
 
     // TODO: show votes to the right of each list item
+    // populate proposal list
+    content += `
+    <div class="scrollable-box">
+    `;
+    
     // add each proposal to the list
     if (proposalNames && proposalNames.length > 0) {
         proposalNames.forEach((proposalName) => {
@@ -94,10 +98,11 @@ async function displayBallotDetails(ballotAddress, item) {
             </div>
         `;
     }
-
     content += `
     </div>
     `;
+
+    // TODO: add a authorized list
 
     // configure Back button
     content += '<button class="button" id="backButton">Back</button>';
@@ -110,8 +115,15 @@ async function displayBallotDetails(ballotAddress, item) {
     document.getElementById("newProposalArrowButton").onclick = () => newProposalArrowClick(ballotAddress, item);
 }
 
-function authorizeArrowButtonClick(ballotAddress) {
-    const authorizeInput = document.getElementById("authorizeInput").value;
+async function authorizeArrowButtonClick(ballotAddress) {
+    const authorizeInput = document.getElementById("authorizeInput");
+    const voterAddress = authorizeInput.value;
+    await authorizeVoter(voterAddress, ballotAddress);
+
+    // TODO: show an error message if the voter is already authorized
+
+    // clear input
+    authorizeInput.value = "";
 }
 
 function revokeArrowClick(ballotAddress) {

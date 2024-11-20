@@ -1,15 +1,15 @@
 export var electioneer;
 export var userAccount;
 
-// Contract address must be updated to match Ganache
-const ELECTIONEER_CONTRACT_ADDRESS = "0x1970e62BdF1846a5749DE7471168Fbd8e3FcE921";
+// contract address must be updated to match Ganache
+const ELECTIONEER_CONTRACT_ADDRESS = "0xfa84c3c76Ef6312618Ff6eCcC6f19f928d7c8181";
 const ELECTIONEER_ABI_PATH = "build/contracts/Electioneer.json";
 const BALLOT_ABI_PATH = "build/contracts/Ballot.json";
 
-// Load the contract ABI from the specified JSON file and initialize the contract instance
+// load the contract ABI from the specified JSON file and initialize the contract instance
 export async function loadContract() {
     try {
-        // Load Electioneer contract
+        // load Electioneer contract
         const electioneerResponse = await fetch(ELECTIONEER_ABI_PATH);
         const electioneerContractData = await electioneerResponse.json();
         const electioneerAbi = electioneerContractData.abi;
@@ -19,7 +19,7 @@ export async function loadContract() {
     }
 }
 
-// Connect to the Ethereum provider (MetaMask or other web3 provider) and fetch user account
+// connect to the Ethereum provider (MetaMask or other web3 provider) and fetch user account
 export async function connectToEthereum() {
     if (window.ethereum) {
         window.web3 = new Web3(window.ethereum);
@@ -38,10 +38,10 @@ export async function connectToEthereum() {
     }
 }
 
-// Load array of name and address for all ballots
+// load array of name and address for all ballots
 export async function loadBallots() {
     try {
-        // Array of ballot addresses
+        // array of ballot addresses
         const ballots = await electioneer.methods.getBallots().call();
 
         const processedBallots = [];
@@ -62,20 +62,20 @@ export async function loadBallots() {
     }
 }
 
-// Add a new proposal to a ballot
+// add a new proposal to a ballot
 export async function addProposal(proposal, ballotAddress) {
     try {
         if (!proposal) {
             throw new Error("Proposal text cannot be empty.");
         }
 
-        // Load Ballot contract
+        // load Ballot contract
         const ballotResponse = await fetch(BALLOT_ABI_PATH);
         const ballotContractData = await ballotResponse.json();
         var ballotAbi = ballotContractData.abi;        
         let ballot = new web3.eth.Contract(ballotAbi, ballotAddress);
 
-        // Call addProposal(...)
+        // call addProposal(...)
         const transaction = await ballot.methods.registerProposal(proposal).send({ from: userAccount });
 
         console.log("Proposal added successfully:", proposalText);
@@ -86,22 +86,47 @@ export async function addProposal(proposal, ballotAddress) {
     }
 }
 
-// Get all proposals from a ballot
+// get all proposals from a ballot
 export async function getProposals(ballotAddress) {
     try {
-        // Load Ballot contract
+        // load Ballot contract
         const ballotResponse = await fetch(BALLOT_ABI_PATH);
         const ballotContractData = await ballotResponse.json();
         var ballotAbi = ballotContractData.abi;        
         let ballot = new web3.eth.Contract(ballotAbi, ballotAddress);
 
-        // Call addProposal(...)
+        // call addProposal(...)
         const transaction = await ballot.methods.getProposals().call();
 
         console.log("Got proposals from:", ballotAddress);
         return transaction;
     } catch (error) {
         console.error("Failed to get proposals:", error.message);
+        return false;
+    }
+}
+
+// authorize a voter
+export async function authorizeVoter(voterAddress, ballotAddress) {
+    try {
+        if (!voterAddress) {
+            throw new Error("VoterAddress text cannot be empty.");
+        }
+
+        // TODO: create helper method for loading a ballot contract
+        // load Ballot contract
+        const ballotResponse = await fetch(BALLOT_ABI_PATH);
+        const ballotContractData = await ballotResponse.json();
+        var ballotAbi = ballotContractData.abi;        
+        let ballot = new web3.eth.Contract(ballotAbi, ballotAddress);
+
+        // call authorizeVoter(...)
+        const transaction = await ballot.methods.authorizeVoter(voterAddress).send({ from: userAccount });
+
+        console.log("Voter authorized successfully:", voterAddress);
+        return transaction;
+    } catch (error) {
+        console.error("Failed to authorize voter:", error.message);
         return false;
     }
 }

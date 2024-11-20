@@ -6,8 +6,10 @@ const contentContainer = document.getElementById("content");
 export async function allTabClick() {
     activateTab(document.getElementById('allTab'));
 
+    // TODO: add a search bar here
+
     const ballots = await loadBallots();
-    let content = '<div class="item-list">';
+    let content = '<div class="scrollable-box"><div class="item-list">';
     for (const ballot of ballots) {
         content += `
             <div class="item" data-address="${ballot.address}">
@@ -16,7 +18,7 @@ export async function allTabClick() {
             </div>
         `;
     }
-    content += '</div>';
+    content += '</div></div>';
 
     contentContainer.innerHTML = content;
 }

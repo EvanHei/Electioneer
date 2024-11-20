@@ -57,6 +57,7 @@ contract Ballot {
     }
 
     function authorizeVoter(address _voter) external onlyOwner {
+        require(!voters[_voter].authorized, "Voter is already authorized");
         voters[_voter].authorized = true;
         emit VoterAuthorized(_voter);
     }
