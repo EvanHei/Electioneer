@@ -31,19 +31,20 @@ export async function myBallotsTabClick() {
     contentContainer.innerHTML = content;
     document.getElementById("createButton").onclick = createButtonClick;
 
-    // configure Wrench butons
+    // configure Wrench buttons
     document.querySelectorAll('.wrench-button').forEach(button => {
         button.addEventListener('click', async (event) => {
             const item = event.target.closest('.item');
             const ballotAddress = item.getAttribute('data-address');
-            await displayBallotDetails(ballotAddress, item);
+            await displayBallotDetails(item);
         });
     });
 }
 
-async function displayBallotDetails(ballotAddress, item) {
+async function displayBallotDetails(item) {
 
     // load proposals
+    const ballotAddress = item.getAttribute('data-address');
     const proposals = await getProposals(ballotAddress);
     const proposalNames = proposals.map(proposal => proposal.name);
 
