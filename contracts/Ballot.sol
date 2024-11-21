@@ -23,6 +23,7 @@ contract Ballot {
 
     mapping(uint => Proposal) public proposals;
     mapping(address => Voter) public voters;
+    address[] public voterAddresses;
 
     event BallotStarted(string name, uint startTime, uint endTime);
     event ProposalRegistered(uint id, string name);
@@ -58,6 +59,7 @@ contract Ballot {
 
     function authorizeVoter(address _voter) external onlyOwner {
         require(!voters[_voter].authorized, "Voter is already authorized");
+        voterAddresses.push(_voter);
         voters[_voter].authorized = true;
         emit VoterAuthorized(_voter);
     }
@@ -139,5 +141,9 @@ contract Ballot {
             return 0;
         }
         return endTime - block.timestamp;
+    }
+
+    function getVoterAddresses() public view returns (address[] memory) {
+        return voterAddresses;
     }
 }
