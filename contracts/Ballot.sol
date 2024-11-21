@@ -59,7 +59,19 @@ contract Ballot {
 
     function authorizeVoter(address _voter) external onlyOwner {
         require(!voters[_voter].authorized, "Voter is already authorized");
-        voterAddresses.push(_voter);
+
+        // add voter to list if not already
+        bool inList = false;
+        for (uint i = 0; i < voterAddresses.length; i++) {
+            if (voterAddresses[i] == _voter) {
+                inList = true;
+                break;
+            }
+        }
+        if (!inList) {
+            voterAddresses.push(_voter);
+        }
+
         voters[_voter].authorized = true;
         emit VoterAuthorized(_voter);
     }
@@ -143,7 +155,31 @@ contract Ballot {
         return endTime - block.timestamp;
     }
 
-    function getVoterAddresses() public view returns (address[] memory) {
-        return voterAddresses;
+    function getAuthorizedVoterAddresses()
+        public
+        view
+        returns (address[] memory)
+    {
+        // count the number of authorized voters
+        uint authorizedCount = 0;
+        for (uint i = 0; i < voterAddresses.length; i++) {
+            if (voters[voterAddresses[i]].authorized) {
+                authorizedCount++;
+            }
+        }
+
+        // array to store authorized addresses
+        address[] memory authorizedVoters = new address[](authorizedCount);
+        uint index = 0;
+
+        // fill the array with authorized voters
+        for (uint i = 0; i < voterAddresses.length; i++) {
+            if (voters[voterAddresses[i]].authorized) {
+                authorizedVoters[index] = voterAddresses[i];
+                index++;
+            }
+        }
+
+        return authorizedVoters;
     }
 }

@@ -41,6 +41,10 @@ contract Electioneer {
         )
     {
         Ballot ballot = Ballot(_address);
-        return (ballot.name(), ballot.owner(), ballot.getVoterAddresses());
+        return (
+            ballot.name(),
+            ballot.owner(),
+            ballot.getAuthorizedVoterAddresses()
+        );
     }
 }
