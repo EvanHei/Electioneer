@@ -28,7 +28,7 @@ contract Ballot {
     event BallotStarted(string name, uint startTime, uint endTime);
     event ProposalRegistered(uint id, string name);
     event VoterAuthorized(address voter);
-    event VoterAuthorizationRevoked(address voter);
+    event VoterRevoked(address voter);
     event Voted(address voter, uint proposalId);
 
     modifier onlyOwner() {
@@ -76,7 +76,7 @@ contract Ballot {
         emit VoterAuthorized(_voter);
     }
 
-    function revokeVoterAuthorization(address _voter) external onlyOwner {
+    function revokeVoter(address _voter) external onlyOwner {
         require(voters[_voter].authorized, "Voter is not authorized");
 
         // Decrement vote
@@ -92,7 +92,7 @@ contract Ballot {
         // Revoke authorization
         voters[_voter].authorized = false;
         voters[_voter].voted = false;
-        emit VoterAuthorizationRevoked(_voter);
+        emit VoterRevoked(_voter);
     }
 
     function vote(uint _proposalId) external isAuthorized {

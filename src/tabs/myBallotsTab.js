@@ -1,4 +1,4 @@
-import { loadBallots, getProposals, addProposal, authorizeVoter, userAccount } from '../ethereum.js';
+import { loadBallots, getProposals, addProposal, authorizeVoter, revokeVoter, userAccount } from '../ethereum.js';
 import { activateTab } from '../helpers.js';
 import { electioneer } from '../ethereum.js';
 
@@ -128,7 +128,7 @@ async function displayBallotDetails(item) {
     // configure → buttons
     document.getElementById("authroizeArrowButton").onclick = () => authorizeArrowButtonClick(ballotAddress);
     document.getElementById("revokeArrowButton").onclick = () => revokeArrowClick(ballotAddress);
-    document.getElementById("newProposalArrowButton").onclick = () => newProposalArrowClick(ballotAddress, item);
+    document.getElementById("newProposalArrowButton").onclick = () => newProposalArrowClick(item);
 }
 
 async function authorizeArrowButtonClick(ballotAddress) {
@@ -143,16 +143,26 @@ async function authorizeArrowButtonClick(ballotAddress) {
 }
 
 // TODO: implement
-function revokeArrowClick(ballotAddress) {
-    const revokeInput = document.getElementById("revokeInput").value;
+async function revokeArrowClick(ballotAddress) {
+    const revokeInput = document.getElementById("revokeInput");
+    const voterAddress = revokeInput.value;
+    await revokeVoter(voterAddress, ballotAddress);
+
+    // clear input
+    revokeInput.value = '';
 }
 
-async function newProposalArrowClick(ballotAddress, item) {
+async function newProposalArrowClick(item) {
+
+    // retrieve data
     const newProposalInput = document.getElementById("newProposalInput").value;
+    const ballotAddress = item.getAttribute('data-address');
+
+    // add proposal
     await addProposal(newProposalInput, ballotAddress);
 
     // refresh proposal list
-    await displayBallotDetails(ballotAddress, item);
+    await displayBallotDetails(item);
 }
 
 async function createButtonClick() {

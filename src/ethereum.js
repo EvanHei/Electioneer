@@ -2,7 +2,7 @@ export var electioneer;
 export var userAccount;
 
 // contract address must be updated to match Ganache
-const ELECTIONEER_CONTRACT_ADDRESS = "0x24bbb92608140eB70Ea41a444BE9F261a3b64241";
+const ELECTIONEER_CONTRACT_ADDRESS = "0xAc6a1845821e306947A61120779d2806859eFd23";
 const ELECTIONEER_ABI_PATH = "build/contracts/Electioneer.json";
 const BALLOT_ABI_PATH = "build/contracts/Ballot.json";
 
@@ -128,6 +128,30 @@ export async function authorizeVoter(voterAddress, ballotAddress) {
         return transaction;
     } catch (error) {
         console.error("Failed to authorize voter:", error.message);
+        return false;
+    }
+}
+
+// revote a voter
+export async function revokeVoter(voterAddress, ballotAddress) {
+    try {
+        if (!voterAddress) {
+            throw new Error("VoterAddress text cannot be empty.");
+        }
+
+        // load Ballot contract
+        const ballotResponse = await fetch(BALLOT_ABI_PATH);
+        const ballotContractData = await ballotResponse.json();
+        var ballotAbi = ballotContractData.abi;        
+        let ballot = new web3.eth.Contract(ballotAbi, ballotAddress);
+
+        // call revokeVoterAuthorization(...)
+        const transaction = await ballot.methods.revokeVoter(voterAddress).send({ from: userAccount });
+
+        console.log("Voter revoked successfully:", voterAddress);
+        return transaction;
+    } catch (error) {
+        console.error("Failed to revoke voter:", error.message);
         return false;
     }
 }
