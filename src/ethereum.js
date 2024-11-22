@@ -132,7 +132,7 @@ export async function authorizeVoter(voterAddress, ballotAddress) {
     }
 }
 
-// revote a voter
+// revoke a voter
 export async function revokeVoter(voterAddress, ballotAddress) {
     try {
         if (!voterAddress) {

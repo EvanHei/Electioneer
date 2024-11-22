@@ -55,7 +55,7 @@ export async function myBallotsTabClick() {
 
 async function displayBallotDetails(item) {
 
-    // Create a new element for ballot details content
+    // create a new element for ballot details content
     const ballotDetailsContent = document.createElement('div');
     ballotDetailsContent.classList.add('content');
 
@@ -104,12 +104,6 @@ async function displayBallotDetails(item) {
             </div>
             `;
         });
-    } else {
-        content += `
-            <div class="item">
-                No proposals.
-            </div>
-        `;
     }
     content += `
     </div>

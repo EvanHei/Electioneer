@@ -159,6 +159,10 @@ body {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
+.item.selected {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
 .subscript {
     font-size: 0.8em;
     color: rgba(255, 255, 255, 0.7);
@@ -179,6 +183,14 @@ body {
 
 .button:hover {
     background-color: rgb(70, 70, 70);
+}
+
+button:disabled {
+    background-color: transparent;
+    border: 1px solid gray;
+    color: gray;
+    cursor: not-allowed;
+    opacity: 1;
 }
 
 .content {

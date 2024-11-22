@@ -1,4 +1,4 @@
-import { loadBallots, userAccount } from '../ethereum.js';
+import { loadBallots, getProposals, userAccount } from '../ethereum.js';
 import { activateTab } from '../helpers.js';
 
 const contentContainer = document.getElementById("content");
@@ -55,58 +55,87 @@ export async function authorizedTabClick() {
     contentContainer.appendChild(authroizedContent);
 }
 
-function displayBallotVoting(item) {
+async function displayBallotVoting(item) {
     const ballotAddress = item.getAttribute('data-address');
 
-    // Create a new element for voting content
+    // create a new element for voting content
     const votingContent = document.createElement('div');
     votingContent.classList.add('content');
+
+    // load proposals
+    const proposals = await getProposals(ballotAddress);
+    const proposalNames = proposals.map(proposal => proposal.name);
     
     // populate input fields
     let content = `
+    <!-- Ballot Name -->
     <h2>${item.querySelector('span').textContent}</h2>
-    
-    <!-- Vote Input Field -->
-    <div class="input-field">
-        <label for="voteInput">Vote</label>
-        <input type="text" id="voteInput">
-        <button id="voteArrowButton" class="input-arrow">→</button>
-    </div>
-
-    <!-- Delegate Input Field -->
-    <div class="input-field">
-        <label for="delegateInput">Delegate</label>
-        <input type="text" id="delegateInput">
-        <button id="delegateArrowButton" class="input-arrow">→</button>
-    </div>
     
     <!-- Proposals List -->
     <h2>Proposals</h2>
     <div class="scrollable-box">
-    </div>
-
-    <!-- Back Button -->
-    <button class="button" id="backButton">Back</button>
     `;
 
+    // populate proposal list
+    if (proposalNames && proposalNames.length > 0) {
+        proposalNames.forEach((proposalName) => {
+            content += `
+            <div class="item">
+                ${proposalName}
+            </div>
+            `;
+        });
+    }
+
+    // add buttons
+    content += `
+    </div>
+
+    <!-- Back and Vote Buttons -->
+    <div>
+        <button class="button" id="backButton">Back</button>
+        <button class="button" id="voteButton">Vote</button>
+    </div>
+    `;
+    
     votingContent.innerHTML = content;
+
+    // disable Vote button
+    const voteButton = votingContent.querySelector('#voteButton');
+    voteButton.disabled = true;
+
+    let selectedProposal = null;
+
+    // configure proposal clicks
+    votingContent.addEventListener('click', (event) => {
+        const item = event.target.closest('.item');
+        if (item) {
+
+            // remove highlighting from all proposals
+            document.querySelectorAll('.item.selected').forEach((element) => {
+                element.classList.remove('selected');
+            });
+
+            // highlight selected proposal
+            item.classList.add('selected');
+
+            selectedProposal = item;
+
+            // enable Vote button
+            const voteButton = document.getElementById('voteButton');
+            voteButton.disabled = false;
+        }
+    });
+    
     contentContainer.innerHTML = '';
     contentContainer.appendChild(votingContent);
 
-    // configure Back button
+    // configure buttons
     document.getElementById("backButton").onclick = authorizedTabClick;
-
-    // configure → buttons
-    document.getElementById("voteArrowButton").onclick = () => voteArrowButtonClick(ballotAddress);
-    document.getElementById("delegateArrowButton").onclick = () => delegateArrowClick(ballotAddress);    
+    document.getElementById("voteButton").onclick = () => voteButtonClick(selectedProposal);
 }
 
 // TODO: implement
-function voteArrowButtonClick(ballotAddress) {
-    const voteInput = document.getElementById("voteInput").value;
-}
-
-// TODO: implement
-function delegateArrowClick(ballotAddress) {
-    const delegateInput = document.getElementById("delegateInput").value;
+async function voteButtonClick(selectedProposal) {
+    const proposals = await getProposals(ballotAddress);
 }
