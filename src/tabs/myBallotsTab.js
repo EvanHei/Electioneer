@@ -75,15 +75,11 @@ async function displayBallotDetails(item) {
     
     <!-- Proposals List -->
     <h2>Proposals</h2>
+    <div class="scrollable-box">
     `;
 
     // TODO: show votes to the right of each list item
     // populate proposal list
-    content += `
-    <div class="scrollable-box">
-    `;
-    
-    // add each proposal to the list
     if (proposalNames && proposalNames.length > 0) {
         proposalNames.forEach((proposalName) => {
             content += `
@@ -127,6 +123,7 @@ async function authorizeArrowButtonClick(ballotAddress) {
     authorizeInput.value = "";
 }
 
+// TODO: implement
 function revokeArrowClick(ballotAddress) {
     const revokeInput = document.getElementById("revokeInput").value;
 }
