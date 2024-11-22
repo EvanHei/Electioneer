@@ -2,7 +2,7 @@ export var electioneer;
 export var userAccount;
 
 // contract address must be updated to match Ganache
-const ELECTIONEER_CONTRACT_ADDRESS = "0xAc6a1845821e306947A61120779d2806859eFd23";
+const ELECTIONEER_CONTRACT_ADDRESS = "0xb76f1e3eF10815738a97872a3d50B657dEC66948";
 const ELECTIONEER_ABI_PATH = "build/contracts/Electioneer.json";
 const BALLOT_ABI_PATH = "build/contracts/Ballot.json";
 
@@ -152,6 +152,31 @@ export async function revokeVoter(voterAddress, ballotAddress) {
         return transaction;
     } catch (error) {
         console.error("Failed to revoke voter:", error.message);
+        return false;
+    }
+}
+
+// vote
+export async function vote(proposalName, ballotAddress) {
+    try {
+
+        // load Ballot contract
+        const ballotResponse = await fetch(BALLOT_ABI_PATH);
+        const ballotContractData = await ballotResponse.json();
+        var ballotAbi = ballotContractData.abi;        
+        let ballot = new web3.eth.Contract(ballotAbi, ballotAddress);
+
+        // query ID of the correct proposal
+        const proposals = await getProposals(ballotAddress);
+        const matchingProposal = proposals.find(proposal => proposal.name === proposalName);    
+
+        // call vote(...)
+        const transaction = await ballot.methods.vote(matchingProposal.id).send({ from: userAccount });
+
+        console.log("Voted successfully on ballot:", ballotAddress);
+        return transaction;
+    } catch (error) {
+        console.error("Failed to vote:", error.message);
         return false;
     }
 }

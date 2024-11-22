@@ -1,4 +1,4 @@
-import { loadBallots, getProposals, userAccount } from '../ethereum.js';
+import { loadBallots, getProposals, vote, userAccount } from '../ethereum.js';
 import { activateTab } from '../helpers.js';
 
 const contentContainer = document.getElementById("content");
@@ -104,7 +104,7 @@ async function displayBallotVoting(item) {
     const voteButton = votingContent.querySelector('#voteButton');
     voteButton.disabled = true;
 
-    let selectedProposal = null;
+    let selectedItem = null;
 
     // configure proposal clicks
     votingContent.addEventListener('click', (event) => {
@@ -119,7 +119,7 @@ async function displayBallotVoting(item) {
             // highlight selected proposal
             item.classList.add('selected');
 
-            selectedProposal = item;
+            selectedItem = item;
 
             // enable Vote button
             const voteButton = document.getElementById('voteButton');
@@ -132,10 +132,5 @@ async function displayBallotVoting(item) {
 
     // configure buttons
     document.getElementById("backButton").onclick = authorizedTabClick;
-    document.getElementById("voteButton").onclick = () => voteButtonClick(selectedProposal);
-}
-
-// TODO: implement
-async function voteButtonClick(selectedProposal) {
-    const proposals = await getProposals(ballotAddress);
+    document.getElementById("voteButton").onclick = () => vote(selectedItem.innerText, ballotAddress);
 }

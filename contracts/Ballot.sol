@@ -16,7 +16,6 @@ contract Ballot {
 
     address public owner;
     string public name;
-    bool public active;
     uint public totalProposals;
     uint public startTime;
     uint public endTime;
@@ -46,7 +45,6 @@ contract Ballot {
         name = _name;
         startTime = block.timestamp;
         endTime = startTime + (_durationInMinutes * 1 minutes);
-        active = true;
         emit BallotStarted(_name, startTime, endTime);
     }
 
@@ -132,7 +130,7 @@ contract Ballot {
         view
         returns (string memory winnerName, uint voteCount)
     {
-        require(!active, "Ballot is still active");
+        require(!isActive(), "Ballot is still active");
 
         uint winningVoteCount = 0;
         uint winningProposalId = 0;
@@ -153,6 +151,10 @@ contract Ballot {
             return 0;
         }
         return endTime - block.timestamp;
+    }
+
+    function isActive() public view returns (bool) {
+        return block.timestamp < endTime;
     }
 
     function getAuthorizedVoterAddresses()
