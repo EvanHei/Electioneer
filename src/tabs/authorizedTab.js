@@ -5,6 +5,10 @@ const contentContainer = document.getElementById("content");
 
 export async function authorizedTabClick() {
     activateTab(document.getElementById('authorizedTab'));
+
+    // Create a new element for authorized content
+    const authroizedContent = document.createElement('div');
+    authroizedContent.classList.add('content');
     
     // load ballots
     const ballots = await loadBallots();
@@ -35,10 +39,10 @@ export async function authorizedTabClick() {
         </div></div>
     `;
 
-    contentContainer.innerHTML = content;
+    authroizedContent.innerHTML = content;
 
     // configure ballot clicks
-    contentContainer.addEventListener('click', (event) => {
+    authroizedContent.addEventListener('click', (event) => {
 
         // check if the clicked element is a ballot item
         if (event.target.closest('.item')) {
@@ -46,13 +50,20 @@ export async function authorizedTabClick() {
             displayBallotVoting(item);
         }
     });
+
+    contentContainer.innerHTML = '';
+    contentContainer.appendChild(authroizedContent);
 }
 
 function displayBallotVoting(item) {
     const ballotAddress = item.getAttribute('data-address');
 
+    // Create a new element for voting content
+    const votingContent = document.createElement('div');
+    votingContent.classList.add('content');
+    
     // populate input fields
-    content = `
+    let content = `
     <h2>${item.querySelector('span').textContent}</h2>
     
     <!-- Vote Input Field -->
@@ -73,11 +84,16 @@ function displayBallotVoting(item) {
     <h2>Proposals</h2>
     <div class="scrollable-box">
     </div>
+
+    <!-- Back Button -->
+    <button class="button" id="backButton">Back</button>
     `;
 
+    votingContent.innerHTML = content;
+    contentContainer.innerHTML = '';
+    contentContainer.appendChild(votingContent);
+
     // configure Back button
-    content += '<button class="button" id="backButton">Back</button>';
-    contentContainer.innerHTML = content;
     document.getElementById("backButton").onclick = authorizedTabClick;
 
     // configure → buttons

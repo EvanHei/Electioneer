@@ -181,7 +181,7 @@ body {
     background-color: rgb(70, 70, 70);
 }
 
-#content {
+.content {
     display: flex;
     justify-content: center;
     align-items: center;

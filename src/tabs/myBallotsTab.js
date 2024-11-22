@@ -7,11 +7,17 @@ const contentContainer = document.getElementById("content");
 export async function myBallotsTabClick() {
     activateTab(document.getElementById('myBallotsTab'));
 
-    // load and filter my ballots
-    const ballots = await loadBallots();
-    const myBallots = ballots.filter(ballot => ballot.owner.toLowerCase() === userAccount.toLowerCase());
+    // Create a new element for My Ballots content
+    const myBallotsContent = document.createElement('div');
+    myBallotsContent.classList.add('content');
 
-    // populate ballot list
+    // Load and filter my ballots
+    const ballots = await loadBallots();
+    const myBallots = ballots.filter(
+        ballot => ballot.owner.toLowerCase() === userAccount.toLowerCase()
+    );
+
+    // Build the ballot list
     let content = '<div class="scrollable-box"><div class="item-list">';
     for (const ballot of myBallots) {
         content += `
@@ -24,24 +30,34 @@ export async function myBallotsTabClick() {
     }
     content += `
         </div></div>
+        <button class="button" id="createButton">Create</button>
     `;
 
-    // configure Create button
-    content += '<button class="button" id="createButton">Create</button>';
-    contentContainer.innerHTML = content;
-    document.getElementById("createButton").onclick = createButtonClick;
+    myBallotsContent.innerHTML = content;
 
-    // configure Wrench buttons
-    document.querySelectorAll('.wrench-button').forEach(button => {
-        button.addEventListener('click', async (event) => {
+    // configure ballot clicks
+    myBallotsContent.addEventListener('click', (event) => {
+
+        // check if the clicked element is a ballot item
+        if (event.target.closest('.item')) {
             const item = event.target.closest('.item');
-            const ballotAddress = item.getAttribute('data-address');
-            await displayBallotDetails(item);
-        });
+            displayBallotDetails(item);
+        }
     });
+    
+    contentContainer.innerHTML = '';
+    contentContainer.appendChild(myBallotsContent);
+
+    // Configure Create button
+    const createButton = document.getElementById('createButton');
+    createButton.onclick = createButtonClick;
 }
 
 async function displayBallotDetails(item) {
+
+    // Create a new element for ballot details content
+    const ballotDetailsContent = document.createElement('div');
+    ballotDetailsContent.classList.add('content');
 
     // load proposals
     const ballotAddress = item.getAttribute('data-address');
@@ -49,7 +65,7 @@ async function displayBallotDetails(item) {
     const proposalNames = proposals.map(proposal => proposal.name);
 
     // populate input fields
-    content = `
+    let content = `
     <h2>${item.querySelector('span').textContent}</h2>
     
     <!-- Authorize Input Field -->
@@ -97,13 +113,16 @@ async function displayBallotDetails(item) {
     }
     content += `
     </div>
+    <button class="button" id="backButton">Back</button>
     `;
 
     // TODO: add a authorized list
 
+    ballotDetailsContent.innerHTML = content;
+    contentContainer.innerHTML = '';
+    contentContainer.appendChild(ballotDetailsContent);
+
     // configure Back button
-    content += '<button class="button" id="backButton">Back</button>';
-    contentContainer.innerHTML = content;
     document.getElementById("backButton").onclick = myBallotsTabClick;
 
     // configure → buttons
