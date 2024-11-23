@@ -16,7 +16,7 @@ export async function authorizedTabClick() {
 
     // filter ballots
     for (const ballot of ballots) {        
-        if (ballot.authorizedVoters.some(voter => voter.toLowerCase() === userAccount.toLowerCase())) {
+        if (ballot.authorizedAddresses.some(voter => voter.toLowerCase() === userAccount.toLowerCase())) {
             myBallots.push({
                 address: ballot.address,
                 name: ballot.name,

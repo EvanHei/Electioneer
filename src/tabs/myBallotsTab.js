@@ -1,4 +1,4 @@
-import { loadBallots, getProposals, addProposal, authorizeVoter, revokeVoter, userAccount } from '../ethereum.js';
+import { loadBallots, loadBallot, getProposals, addProposal, authorizeVoter, revokeVoter, userAccount } from '../ethereum.js';
 import { activateTab } from '../helpers.js';
 import { electioneer } from '../ethereum.js';
 
@@ -7,17 +7,17 @@ const contentContainer = document.getElementById("content");
 export async function myBallotsTabClick() {
     activateTab(document.getElementById('myBallotsTab'));
 
-    // Create a new element for My Ballots content
+    // create a new element for My Ballots content
     const myBallotsContent = document.createElement('div');
     myBallotsContent.classList.add('content');
 
-    // Load and filter my ballots
+    // load and filter my ballots
     const ballots = await loadBallots();
     const myBallots = ballots.filter(
         ballot => ballot.owner.toLowerCase() === userAccount.toLowerCase()
     );
 
-    // Build the ballot list
+    // build the ballot list
     let content = '<div class="scrollable-box"><div class="item-list">';
     for (const ballot of myBallots) {
         content += `
@@ -64,6 +64,9 @@ async function displayBallotDetails(item) {
     const proposals = await getProposals(ballotAddress);
     const proposalNames = proposals.map(proposal => proposal.name);
 
+    // load specific ballot
+    const ballot = await loadBallot(ballotAddress);
+
     // populate input fields
     let content = `
     <h2>${item.querySelector('span').textContent}</h2>
@@ -107,10 +110,22 @@ async function displayBallotDetails(item) {
     }
     content += `
     </div>
-    <button class="button" id="backButton">Back</button>
+
+    <!-- Authorized Addresses List -->
+    <h2>Authorized Addresses</h2>
+    <div class="scrollable-box">
     `;
 
-    // TODO: add a authorized list
+    // populate authorized addresses list
+    ballot.authorizedAddresses.forEach((address) => {
+        content += `
+        <div class="item">
+            ${address}
+        </div>
+        `;
+    });
+    content += `</div><button class="button" id="backButton">Back</button>
+    `;
 
     ballotDetailsContent.innerHTML = content;
     contentContainer.innerHTML = '';
@@ -120,30 +135,45 @@ async function displayBallotDetails(item) {
     document.getElementById("backButton").onclick = myBallotsTabClick;
 
     // configure → buttons
-    document.getElementById("authroizeArrowButton").onclick = () => authorizeArrowButtonClick(ballotAddress);
-    document.getElementById("revokeArrowButton").onclick = () => revokeArrowClick(ballotAddress);
+    document.getElementById("authroizeArrowButton").onclick = () => authorizeArrowButtonClick(item);
+    document.getElementById("revokeArrowButton").onclick = () => revokeArrowClick(item);
     document.getElementById("newProposalArrowButton").onclick = () => newProposalArrowClick(item);
 }
 
-async function authorizeArrowButtonClick(ballotAddress) {
+async function authorizeArrowButtonClick(item) {
+
+    // retrieve data
     const authorizeInput = document.getElementById("authorizeInput");
     const voterAddress = authorizeInput.value;
+    const ballotAddress = item.getAttribute('data-address');
+
+    // authorize address
     await authorizeVoter(voterAddress, ballotAddress);
 
     // TODO: show an error message if the voter is already authorized
 
     // clear input
     authorizeInput.value = "";
+
+    // refresh lists
+    await displayBallotDetails(item);
 }
 
-// TODO: implement
-async function revokeArrowClick(ballotAddress) {
+async function revokeArrowClick(item) {
+
+    // retrieve data
     const revokeInput = document.getElementById("revokeInput");
     const voterAddress = revokeInput.value;
+    const ballotAddress = item.getAttribute('data-address');
+
+    // revoke voter
     await revokeVoter(voterAddress, ballotAddress);
 
     // clear input
     revokeInput.value = '';
+
+    // refresh lists
+    await displayBallotDetails(item);
 }
 
 async function newProposalArrowClick(item) {
@@ -155,7 +185,7 @@ async function newProposalArrowClick(item) {
     // add proposal
     await addProposal(newProposalInput, ballotAddress);
 
-    // refresh proposal list
+    // refresh lists
     await displayBallotDetails(item);
 }
 

@@ -38,7 +38,7 @@ export async function connectToEthereum() {
     }
 }
 
-// load array of name and address for all ballots
+// load array of all ballots and their details
 export async function loadBallots() {
     try {
         // array of ballot addresses
@@ -47,19 +47,31 @@ export async function loadBallots() {
         const processedBallots = [];
         for (let i = 0; i < ballots.length; i++) {
             const address = ballots[i];
-            const { ballotName: name, owner, authorizedVoters } = await electioneer.methods.getBallotDetails(address).call();
+            const { ballotName: name, owner, authorizedVoters: authorizedAddresses } = await electioneer.methods.getBallotDetails(address).call();
 
             processedBallots.push({
                 name: name,
                 address: address,
                 owner: owner,
-                authorizedVoters: authorizedVoters
+                authorizedAddresses: authorizedAddresses
             });
         }
         return processedBallots;
     } catch (error) {
         console.error("Failed to fetch ballots:", error);
         return [];
+    }
+}
+
+// loads a signle ballot's details
+export async function loadBallot(ballotAddress) {
+    try {
+        const ballots = await loadBallots();
+        const matchingBallot = ballots.find(ballot => ballot.address === ballotAddress);
+        return matchingBallot || null;
+    } catch (error) {
+        console.error(`Failed to fetch ballot details for address ${ballotAddress}:`, error);
+        return null;
     }
 }
 
