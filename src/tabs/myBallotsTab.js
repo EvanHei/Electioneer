@@ -71,21 +71,21 @@ async function displayBallotDetails(item) {
     <!-- Authorize Input Field -->
     <div class="input-field">
         <label for="authorizeInput">Authorize</label>
-        <input type="text" id="authorizeInput">
+        <input type="text" id="authorizeInput" placeholder="Public address">
         <button id="authroizeArrowButton" class="input-arrow">→</button>
     </div>
 
     <!-- Revoke Input Field -->
     <div class="input-field">
         <label for="revokeInput">Revoke</label>
-        <input type="text" id="revokeInput">
+        <input type="text" id="revokeInput" placeholder="Public address">
         <button id="revokeArrowButton" class="input-arrow">→</button>
     </div>
 
     <!-- New Proposal Input Field -->
     <div class="input-field">
         <label for="newProposalInput">New Proposal</label>
-        <input type="text" id="newProposalInput">
+        <input type="text" id="newProposalInput" placeholder="Name, law, bill, ...">
         <button id="newProposalArrowButton" class="input-arrow">→</button>
     </div>
     
