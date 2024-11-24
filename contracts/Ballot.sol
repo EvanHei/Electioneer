@@ -99,7 +99,7 @@ contract Ballot {
             _proposalId > 0 && _proposalId <= totalProposals,
             "Invalid proposal ID"
         );
-        require(timeRemaining() > 0, "Ballot has ended");
+        require(isActive(), "Ballot has ended");
 
         voters[msg.sender].voted = true;
         voters[msg.sender].proposalId = _proposalId;
@@ -144,13 +144,6 @@ contract Ballot {
 
         winnerName = proposals[winningProposalId].name;
         voteCount = proposals[winningProposalId].voteCount;
-    }
-
-    function timeRemaining() public view returns (uint) {
-        if (block.timestamp >= endTime) {
-            return 0;
-        }
-        return endTime - block.timestamp;
     }
 
     function isActive() public view returns (bool) {

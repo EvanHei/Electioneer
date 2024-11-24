@@ -2,7 +2,7 @@ export var electioneer;
 export var userAccount;
 
 // contract address must be updated to match Ganache
-const ELECTIONEER_CONTRACT_ADDRESS = "0xb76f1e3eF10815738a97872a3d50B657dEC66948";
+const ELECTIONEER_CONTRACT_ADDRESS = "0xb119eF9c60aa34Ec7b73Ce62C7bB280b4A0F0F77";
 const ELECTIONEER_ABI_PATH = "build/contracts/Electioneer.json";
 const BALLOT_ABI_PATH = "build/contracts/Ballot.json";
 
