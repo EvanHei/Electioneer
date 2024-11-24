@@ -19,10 +19,10 @@ contract Ballot {
     uint public totalProposals;
     uint public startTime;
     uint public endTime;
+    address[] public voterAddresses;
 
     mapping(uint => Proposal) public proposals;
     mapping(address => Voter) public voters;
-    address[] public voterAddresses;
 
     event BallotStarted(string name, uint startTime, uint endTime);
     event ProposalRegistered(uint id, string name);
@@ -150,11 +150,7 @@ contract Ballot {
         return block.timestamp < endTime;
     }
 
-    function getAuthorizedVoterAddresses()
-        public
-        view
-        returns (address[] memory)
-    {
+    function getAuthorizedAddresses() public view returns (address[] memory) {
         // count the number of authorized voters
         uint authorizedCount = 0;
         for (uint i = 0; i < voterAddresses.length; i++) {
@@ -164,17 +160,17 @@ contract Ballot {
         }
 
         // array to store authorized addresses
-        address[] memory authorizedVoters = new address[](authorizedCount);
+        address[] memory authorizedAddresses = new address[](authorizedCount);
         uint index = 0;
 
         // fill the array with authorized voters
         for (uint i = 0; i < voterAddresses.length; i++) {
             if (voters[voterAddresses[i]].authorized) {
-                authorizedVoters[index] = voterAddresses[i];
+                authorizedAddresses[index] = voterAddresses[i];
                 index++;
             }
         }
 
-        return authorizedVoters;
+        return authorizedAddresses;
     }
 }

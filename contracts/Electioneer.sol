@@ -25,30 +25,7 @@ contract Electioneer {
         emit BallotCreated(address(newBallot), _ballotName, msg.sender);
     }
 
-    function getBallots() public view returns (address[] memory) {
+    function getBallotAddresses() public view returns (address[] memory) {
         return ballots;
-    }
-
-    function getBallotDetails(
-        address _address
-    )
-        public
-        view
-        returns (
-            string memory ballotName,
-            address owner,
-            address[] memory authorizedVoters,
-            uint startTime,
-            uint endTime
-        )
-    {
-        Ballot ballot = Ballot(_address);
-        return (
-            ballot.name(),
-            ballot.owner(),
-            ballot.getAuthorizedVoterAddresses(),
-            ballot.startTime(),
-            ballot.endTime()
-        );
     }
 }

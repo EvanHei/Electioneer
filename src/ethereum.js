@@ -2,7 +2,7 @@ export var electioneer;
 export var userAccount;
 
 // contract address must be updated to match Ganache
-const ELECTIONEER_CONTRACT_ADDRESS = "0x18cb2879468D5e127A1894ac7ccB2B5687090723";
+const ELECTIONEER_CONTRACT_ADDRESS = "0xA421dB24d79BF9F37426160213939356f3D08793";
 const ELECTIONEER_ABI_PATH = "build/contracts/Electioneer.json";
 const BALLOT_ABI_PATH = "build/contracts/Ballot.json";
 
@@ -42,17 +42,25 @@ export async function connectToEthereum() {
 export async function loadBallots() {
     try {
         // array of ballot addresses
-        const ballots = await electioneer.methods.getBallots().call();
+        const ballotsAddresses = await electioneer.methods.getBallotAddresses().call();
 
-        const processedBallots = [];
-        for (let i = 0; i < ballots.length; i++) {
-            const address = ballots[i];
-            const { ballotName: name, owner, authorizedVoters: authorizedAddresses, startTime, endTime } = await electioneer.methods.getBallotDetails(address).call();
+        const ballots = [];
+        for (let i = 0; i < ballotsAddresses.length; i++) {
+            const address = ballotsAddresses[i];
+            let ballot = await loadBallotContract(address);
 
+            // get the ballot details
+            const name = await ballot.methods.name().call();
+            const owner = await ballot.methods.owner().call();
+            const authorizedAddresses = await ballot.methods.getAuthorizedAddresses().call();
+            const startTime = await ballot.methods.startTime().call();
+            const endTime = await ballot.methods.endTime().call();
+
+            // format data
             const formattedStartTime = new Date(startTime * 1000).toLocaleString();
             const formattedEndTime = new Date(endTime * 1000).toLocaleString();
 
-            processedBallots.push({
+            ballots.push({
                 name: name,
                 address: address,
                 owner: owner,
@@ -61,7 +69,7 @@ export async function loadBallots() {
                 endTime: formattedEndTime
             });
         }
-        return processedBallots;
+        return ballots;
     } catch (error) {
         console.error("Failed to fetch ballots:", error);
         return [];
@@ -85,6 +93,7 @@ export async function addProposal(proposal, ballotAddress) {
     try {
         let ballot = await loadBallotContract(ballotAddress);
         await ballot.methods.registerProposal(proposal).send({ from: userAccount });
+        console.log("Registered proposal:", proposal);
     } catch (error) {
         console.error("Failed to add proposal:", error.message);
     }
@@ -106,6 +115,7 @@ export async function authorizeVoter(voterAddress, ballotAddress) {
     try {
         let ballot = await loadBallotContract(ballotAddress);
         await ballot.methods.authorizeVoter(voterAddress).send({ from: userAccount });
+        console.log("Authorized voter:", voterAddress);
     } catch (error) {
         console.error("Failed to authorize voter:", error.message);
     }
@@ -114,21 +124,9 @@ export async function authorizeVoter(voterAddress, ballotAddress) {
 // revoke a voter
 export async function revokeVoter(voterAddress, ballotAddress) {
     try {
-        if (!voterAddress) {
-            throw new Error("VoterAddress text cannot be empty.");
-        }
-
-        // load Ballot contract
-        const ballotResponse = await fetch(BALLOT_ABI_PATH);
-        const ballotContractData = await ballotResponse.json();
-        var ballotAbi = ballotContractData.abi;        
-        let ballot = new web3.eth.Contract(ballotAbi, ballotAddress);
-
-        // call revokeVoterAuthorization(...)
-        const transaction = await ballot.methods.revokeVoter(voterAddress).send({ from: userAccount });
-
-        console.log("Voter revoked successfully:", voterAddress);
-        return transaction;
+        let ballot = await loadBallotContract(ballotAddress);
+        await ballot.methods.revokeVoter(voterAddress).send({ from: userAccount });
+        console.log("Revoked voter:", voterAddress);
     } catch (error) {
         console.error("Failed to revoke voter:", error.message);
         return false;
@@ -138,22 +136,15 @@ export async function revokeVoter(voterAddress, ballotAddress) {
 // vote
 export async function vote(proposalName, ballotAddress) {
     try {
-
-        // load Ballot contract
-        const ballotResponse = await fetch(BALLOT_ABI_PATH);
-        const ballotContractData = await ballotResponse.json();
-        var ballotAbi = ballotContractData.abi;        
-        let ballot = new web3.eth.Contract(ballotAbi, ballotAddress);
+        let ballot = await loadBallotContract(ballotAddress);
 
         // query ID of the correct proposal
         const proposals = await getProposals(ballotAddress);
         const matchingProposal = proposals.find(proposal => proposal.name === proposalName);    
 
-        // call vote(...)
-        const transaction = await ballot.methods.vote(matchingProposal.id).send({ from: userAccount });
+        await ballot.methods.vote(matchingProposal.id).send({ from: userAccount });
 
-        console.log("Voted successfully on ballot:", ballotAddress);
-        return transaction;
+        console.log("Voted on ballot:", ballotAddress);
     } catch (error) {
         console.error("Failed to vote:", error.message);
         return false;
