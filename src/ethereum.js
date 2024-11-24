@@ -69,7 +69,7 @@ export async function loadBallots() {
 }
 
 // loads a single ballot's details
-export async function loadBallot(ballotAddress) {
+export async function loadBallotDetails(ballotAddress) {
     try {
         const ballots = await loadBallots();
         const matchingBallot = ballots.find(ballot => ballot.address === ballotAddress);

@@ -1,4 +1,4 @@
-import { loadBallots, loadBallot, getProposals, addProposal, authorizeVoter, revokeVoter, userAccount } from '../ethereum.js';
+import { loadBallots, loadBallotDetails, getProposals, addProposal, authorizeVoter, revokeVoter, userAccount } from '../ethereum.js';
 import { activateTab } from '../helpers.js';
 import { electioneer } from '../ethereum.js';
 
@@ -65,7 +65,7 @@ async function displayBallotDetails(item) {
     const proposalNames = proposals.map(proposal => proposal.name);
 
     // load specific ballot
-    const ballot = await loadBallot(ballotAddress);
+    const ballot = await loadBallotDetails(ballotAddress);
 
     // populate input fields
     let content = `
