@@ -83,69 +83,31 @@ export async function loadBallot(ballotAddress) {
 // add a new proposal to a ballot
 export async function addProposal(proposal, ballotAddress) {
     try {
-        if (!proposal) {
-            throw new Error("Proposal text cannot be empty.");
-        }
-
-        // load Ballot contract
-        const ballotResponse = await fetch(BALLOT_ABI_PATH);
-        const ballotContractData = await ballotResponse.json();
-        var ballotAbi = ballotContractData.abi;        
-        let ballot = new web3.eth.Contract(ballotAbi, ballotAddress);
-
-        // call addProposal(...)
-        const transaction = await ballot.methods.registerProposal(proposal).send({ from: userAccount });
-
-        console.log("Proposal added successfully:", proposalText);
-        return transaction;
+        let ballot = await loadBallotContract(ballotAddress);
+        await ballot.methods.registerProposal(proposal).send({ from: userAccount });
     } catch (error) {
         console.error("Failed to add proposal:", error.message);
-        return false;
     }
 }
 
 // get all proposals from a ballot
 export async function getProposals(ballotAddress) {
-    try {
-        // load Ballot contract
-        const ballotResponse = await fetch(BALLOT_ABI_PATH);
-        const ballotContractData = await ballotResponse.json();
-        var ballotAbi = ballotContractData.abi;        
-        let ballot = new web3.eth.Contract(ballotAbi, ballotAddress);
-
-        // call addProposal(...)
+    try {      
+        let ballot = await loadBallotContract(ballotAddress);
         const transaction = await ballot.methods.getProposals().call();
-
-        console.log("Got proposals from:", ballotAddress);
         return transaction;
     } catch (error) {
         console.error("Failed to get proposals:", error.message);
-        return false;
     }
 }
 
 // authorize a voter
 export async function authorizeVoter(voterAddress, ballotAddress) {
     try {
-        if (!voterAddress) {
-            throw new Error("VoterAddress text cannot be empty.");
-        }
-
-        // TODO: create helper method for loading a ballot contract
-        // load Ballot contract
-        const ballotResponse = await fetch(BALLOT_ABI_PATH);
-        const ballotContractData = await ballotResponse.json();
-        var ballotAbi = ballotContractData.abi;        
-        let ballot = new web3.eth.Contract(ballotAbi, ballotAddress);
-
-        // call authorizeVoter(...)
-        const transaction = await ballot.methods.authorizeVoter(voterAddress).send({ from: userAccount });
-
-        console.log("Voter authorized successfully:", voterAddress);
-        return transaction;
+        let ballot = await loadBallotContract(ballotAddress);
+        await ballot.methods.authorizeVoter(voterAddress).send({ from: userAccount });
     } catch (error) {
         console.error("Failed to authorize voter:", error.message);
-        return false;
     }
 }
 
@@ -196,4 +158,13 @@ export async function vote(proposalName, ballotAddress) {
         console.error("Failed to vote:", error.message);
         return false;
     }
+}
+
+// load a ballot contract
+async function loadBallotContract(ballotAddress) {
+    const ballotResponse = await fetch(BALLOT_ABI_PATH);
+    const ballotContractData = await ballotResponse.json();
+    var ballotAbi = ballotContractData.abi;        
+    let ballot = new web3.eth.Contract(ballotAbi, ballotAddress);
+    return ballot;
 }
