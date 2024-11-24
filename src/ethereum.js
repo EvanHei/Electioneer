@@ -2,7 +2,7 @@ export var electioneer;
 export var userAccount;
 
 // contract address must be updated to match Ganache
-const ELECTIONEER_CONTRACT_ADDRESS = "0xb119eF9c60aa34Ec7b73Ce62C7bB280b4A0F0F77";
+const ELECTIONEER_CONTRACT_ADDRESS = "0x18cb2879468D5e127A1894ac7ccB2B5687090723";
 const ELECTIONEER_ABI_PATH = "build/contracts/Electioneer.json";
 const BALLOT_ABI_PATH = "build/contracts/Ballot.json";
 
@@ -47,13 +47,18 @@ export async function loadBallots() {
         const processedBallots = [];
         for (let i = 0; i < ballots.length; i++) {
             const address = ballots[i];
-            const { ballotName: name, owner, authorizedVoters: authorizedAddresses } = await electioneer.methods.getBallotDetails(address).call();
+            const { ballotName: name, owner, authorizedVoters: authorizedAddresses, startTime, endTime } = await electioneer.methods.getBallotDetails(address).call();
+
+            const formattedStartTime = new Date(startTime * 1000).toLocaleString();
+            const formattedEndTime = new Date(endTime * 1000).toLocaleString();
 
             processedBallots.push({
                 name: name,
                 address: address,
                 owner: owner,
-                authorizedAddresses: authorizedAddresses
+                authorizedAddresses: authorizedAddresses,
+                startTime: formattedStartTime,
+                endTime: formattedEndTime
             });
         }
         return processedBallots;
@@ -63,7 +68,7 @@ export async function loadBallots() {
     }
 }
 
-// loads a signle ballot's details
+// loads a single ballot's details
 export async function loadBallot(ballotAddress) {
     try {
         const ballots = await loadBallots();

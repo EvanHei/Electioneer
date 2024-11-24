@@ -14,7 +14,7 @@ export async function allTabClick() {
         content += `
             <div class="item" data-address="${ballot.address}">
                 ${ballot.name}
-                <span class="subscript">${ballot.address}</span>
+                <span class="subscript">Ends ${ballot.endTime}</span>
             </div>
         `;
     }

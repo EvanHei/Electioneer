@@ -37,14 +37,18 @@ contract Electioneer {
         returns (
             string memory ballotName,
             address owner,
-            address[] memory authorizedVoters
+            address[] memory authorizedVoters,
+            uint startTime,
+            uint endTime
         )
     {
         Ballot ballot = Ballot(_address);
         return (
             ballot.name(),
             ballot.owner(),
-            ballot.getAuthorizedVoterAddresses()
+            ballot.getAuthorizedVoterAddresses(),
+            ballot.startTime(),
+            ballot.endTime()
         );
     }
 }

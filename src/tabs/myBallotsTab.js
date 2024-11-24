@@ -23,7 +23,7 @@ export async function myBallotsTabClick() {
         content += `
             <div class="item" data-address="${ballot.address}">
                 <span>${ballot.name}</span>
-                <span class="subscript">${ballot.address}</span>
+                <span class="subscript">Ends ${ballot.endTime}</span>
                 <button class="wrench-button">🔧️</button>
             </div>
         `;
@@ -88,7 +88,7 @@ async function displayBallotDetails(item) {
     <!-- New Proposal Input Field -->
     <div class="input-field">
         <label for="newProposalInput">New Proposal</label>
-        <input type="text" id="newProposalInput" placeholder="Name, law, bill, ...">
+        <input type="text" id="newProposalInput" placeholder="Candidate, law, bill, ...">
         <button id="newProposalArrowButton" class="input-arrow">→</button>
     </div>
     
@@ -124,6 +124,22 @@ async function displayBallotDetails(item) {
         </div>
         `;
     });
+
+    content += `
+    </div>
+
+    <!-- Details -->
+    <h2>Details</h2>
+    <div>
+        <p><strong>Address:</strong> ${ballot.address}</p>
+        <p><strong>Start:</strong> ${ballot.startTime}</p>
+        <p><strong>End:</strong> ${ballot.endTime}</p>
+        <p><strong>Authorized Voters:</strong> ${ballot.authorizedAddresses.length}</p>
+        <p><strong>Proposals:</strong> ${proposals.length}</p>
+    </div>
+    `;
+
+    // add Back button
     content += `</div><button class="button" id="backButton">Back</button>
     `;
 
