@@ -1,4 +1,4 @@
-import { loadBallots, getProposals, vote, userAccount } from '../ethereum.js';
+import { loadBallots, getProposals, vote, getVoterProposalName, userAccount } from '../ethereum.js';
 import { activateTab } from '../helpers.js';
 
 const contentContainer = document.getElementById("content");
@@ -42,8 +42,8 @@ export async function authorizedTabClick() {
 
         // check if the clicked element is a ballot item
         if (event.target.closest('.item')) {
-            const item = event.target.closest('.item');
-            displayBallotVoting(item);
+            const ballot = event.target.closest('.item');
+            displayBallotVoting(ballot);
         }
     });
 
@@ -51,8 +51,8 @@ export async function authorizedTabClick() {
     contentContainer.appendChild(authroizedContent);
 }
 
-async function displayBallotVoting(item) {
-    const ballotAddress = item.getAttribute('data-address');
+async function displayBallotVoting(ballot) {
+    const ballotAddress = ballot.getAttribute('data-address');
 
     // create a new element for voting content
     const votingContent = document.createElement('div');
@@ -61,11 +61,14 @@ async function displayBallotVoting(item) {
     // load proposals
     const proposals = await getProposals(ballotAddress);
     const proposalNames = proposals.map(proposal => proposal.name);
+
+    // check the proposal voted by the user
+    const voterProposalName = await getVoterProposalName(userAccount, ballotAddress);
     
     // populate input fields
     let content = `
     <!-- Ballot Name -->
-    <h2>${item.querySelector('span').textContent}</h2>
+    <h2>${ballot.querySelector('span').textContent}</h2>
     
     <!-- Proposals List -->
     <h2>Proposals</h2>
@@ -100,33 +103,54 @@ async function displayBallotVoting(item) {
     const voteButton = votingContent.querySelector('#voteButton');
     voteButton.disabled = true;
 
-    let selectedItem = null;
+    let selectedProposal = null;
 
     // configure proposal clicks
     votingContent.addEventListener('click', (event) => {
-        const item = event.target.closest('.item');
-        if (item) {
-
+        const proposal = event.target.closest('.item');
+        if (proposal) {
             // remove highlighting from all proposals
             document.querySelectorAll('.item.selected').forEach((element) => {
                 element.classList.remove('selected');
             });
 
             // highlight selected proposal
-            item.classList.add('selected');
+            proposal.classList.add('selected');
 
-            selectedItem = item;
+            selectedProposal = proposal;
 
             // enable Vote button
-            const voteButton = document.getElementById('voteButton');
             voteButton.disabled = false;
         }
     });
-    
+
     contentContainer.innerHTML = '';
     contentContainer.appendChild(votingContent);
 
+    // disable clicking if the voter alread voted
+    if (voterProposalName) {
+        document.querySelectorAll('.item').forEach((item) => {
+
+            // disable clicking
+            item.classList.add('disabled');
+            voteButton.disabled = true;
+
+            // highlight the voted proposal
+            if (item.textContent.trim() === voterProposalName) {
+                item.classList.add('selected');
+            }
+        });
+    }
+    
     // configure buttons
     document.getElementById("backButton").onclick = authorizedTabClick;
-    document.getElementById("voteButton").onclick = () => vote(selectedItem.innerText, ballotAddress);
+    document.getElementById("voteButton").onclick = () => voteButtonClick(selectedProposal.innerText, ballot);
+}
+
+async function voteButtonClick(proposalName, ballot) {
+    const ballotAddress = ballot.getAttribute('data-address');
+    await vote(proposalName, ballotAddress);
+
+    // refresh display
+    displayBallotVoting(ballot);
 }

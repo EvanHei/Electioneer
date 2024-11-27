@@ -88,6 +88,24 @@ export async function loadBallotDetails(ballotAddress) {
     }
 }
 
+// get the proposal a voter voted for
+export async function getVoterProposalName(voterAddress, ballotAddress) {
+    try {
+        let ballot = await loadBallotContract(ballotAddress);
+        const voter = await ballot.methods.voters(voterAddress).call();
+
+        if (!voter.voted) {
+            return null;
+        }
+
+        const proposal = await ballot.methods.getProposalById(voter.proposalId).call();
+        return proposal.name;
+    } catch (error) {
+        console.error("Error fetching voter proposal name:", error);
+        throw error;
+    }
+}
+
 // add a new proposal to a ballot
 export async function addProposal(proposal, ballotAddress) {
     try {

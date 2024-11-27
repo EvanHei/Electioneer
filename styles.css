@@ -159,6 +159,16 @@ body {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
+.item.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.item.disabled:hover {
+    background-color: inherit;
+    cursor: not-allowed;
+}
+
 .item.selected {
     background-color: rgba(255, 255, 255, 0.1);
 }
