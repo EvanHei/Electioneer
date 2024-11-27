@@ -1,4 +1,4 @@
-import { loadBallots, getProposals, vote, getVoterProposalName, userAccount } from '../ethereum.js';
+import { loadBallots, getProposals, loadBallotDetails, vote, getVoterProposalName, userAccount } from '../ethereum.js';
 import { activateTab } from '../helpers.js';
 
 const contentContainer = document.getElementById("content");
@@ -51,8 +51,9 @@ export async function authorizedTabClick() {
     contentContainer.appendChild(authroizedContent);
 }
 
-async function displayBallotVoting(ballot) {
-    const ballotAddress = ballot.getAttribute('data-address');
+async function displayBallotVoting(ballotItem) {
+    const ballotAddress = ballotItem.getAttribute('data-address');
+    const ballot = await loadBallotDetails(ballotAddress);
 
     // create a new element for voting content
     const votingContent = document.createElement('div');
@@ -68,7 +69,7 @@ async function displayBallotVoting(ballot) {
     // populate input fields
     let content = `
     <!-- Ballot Name -->
-    <h2>${ballot.querySelector('span').textContent}</h2>
+    <h2>${ballotItem.querySelector('span').textContent}</h2>
     
     <!-- Proposals List -->
     <h2>Proposals</h2>
@@ -86,10 +87,23 @@ async function displayBallotVoting(ballot) {
         });
     }
 
-    // add buttons
+    // populate details
     content += `
     </div>
 
+    <!-- Details -->
+    <h2>Details</h2>
+    <div>
+        <p><strong>Winner(s):</strong> ${ballot.winners}</p>
+        <p><strong>Your Vote:</strong> ${voterProposalName}</p>
+        <p><strong>Ends:</strong> ${ballot.endTime}</p>
+    </div>
+    `;
+
+    // add buttons
+    content += `
+    </div>
+    
     <!-- Back and Vote Buttons -->
     <div>
         <button class="button" id="backButton">Back</button>
@@ -127,8 +141,10 @@ async function displayBallotVoting(ballot) {
     contentContainer.innerHTML = '';
     contentContainer.appendChild(votingContent);
 
-    // disable clicking if the voter alread voted
-    if (voterProposalName) {
+    // disable clicking if the voter already voted or if the ballot is over
+    const currentTime = new Date();
+    const endDate = new Date(ballot.endTime);
+    if (voterProposalName !== "N/A" || endDate < currentTime) {
         document.querySelectorAll('.item').forEach((item) => {
 
             // disable clicking
@@ -144,7 +160,7 @@ async function displayBallotVoting(ballot) {
     
     // configure buttons
     document.getElementById("backButton").onclick = authorizedTabClick;
-    document.getElementById("voteButton").onclick = () => voteButtonClick(selectedProposal.innerText, ballot);
+    document.getElementById("voteButton").onclick = () => voteButtonClick(selectedProposal.innerText, ballotItem);
 }
 
 async function voteButtonClick(proposalName, ballot) {

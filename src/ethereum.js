@@ -2,7 +2,7 @@ export var electioneer;
 export var userAccount;
 
 // contract address must be updated to match Ganache
-const ELECTIONEER_CONTRACT_ADDRESS = "0xA421dB24d79BF9F37426160213939356f3D08793";
+const ELECTIONEER_CONTRACT_ADDRESS = "0x596A905891D14D7e751628582f76397E9d4604dF";
 const ELECTIONEER_ABI_PATH = "build/contracts/Electioneer.json";
 const BALLOT_ABI_PATH = "build/contracts/Ballot.json";
 
@@ -50,11 +50,20 @@ export async function loadBallots() {
             let ballot = await loadBallotContract(address);
 
             // get the ballot details
-            const name = await ballot.methods.name().call();
             const owner = await ballot.methods.owner().call();
+            const name = await ballot.methods.name().call();
+            const totalProposals = await ballot.methods.totalProposals().call();
+            const totalVotes = await ballot.methods.totalVotes().call();
             const authorizedAddresses = await ballot.methods.getAuthorizedAddresses().call();
             const startTime = await ballot.methods.startTime().call();
             const endTime = await ballot.methods.endTime().call();
+            let winners = "N/A";
+
+            // get winner(s) if ballot is still active and there are proposals
+            const active = await ballot.methods.isActive().call();
+            if (!active && totalProposals > 0 && totalVotes > 0) {
+                winners = await ballot.methods.getWinners().call();
+            }
 
             // format data
             const formattedStartTime = new Date(startTime * 1000).toLocaleString();
@@ -66,7 +75,10 @@ export async function loadBallots() {
                 owner: owner,
                 authorizedAddresses: authorizedAddresses,
                 startTime: formattedStartTime,
-                endTime: formattedEndTime
+                endTime: formattedEndTime,
+                winners: winners,
+                totalVotes: totalVotes,
+                totalProposals: totalProposals
             });
         }
         return ballots;
@@ -95,7 +107,7 @@ export async function getVoterProposalName(voterAddress, ballotAddress) {
         const voter = await ballot.methods.voters(voterAddress).call();
 
         if (!voter.voted) {
-            return null;
+            return "N/A";
         }
 
         const proposal = await ballot.methods.getProposalById(voter.proposalId).call();

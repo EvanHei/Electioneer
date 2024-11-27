@@ -132,8 +132,9 @@ async function displayBallotDetails(item) {
     <h2>Details</h2>
     <div>
         <p><strong>Address:</strong> ${ballot.address}</p>
-        <p><strong>Start:</strong> ${ballot.startTime}</p>
-        <p><strong>End:</strong> ${ballot.endTime}</p>
+        <p><strong>Winner(s):</strong> ${ballot.winners}</p>
+        <p><strong>Started:</strong> ${ballot.startTime}</p>
+        <p><strong>Ends:</strong> ${ballot.endTime}</p>
         <p><strong>Authorized Voters:</strong> ${ballot.authorizedAddresses.length}</p>
         <p><strong>Proposals:</strong> ${proposals.length}</p>
     </div>

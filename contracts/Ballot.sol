@@ -17,6 +17,7 @@ contract Ballot {
     address public owner;
     string public name;
     uint public totalProposals;
+    uint public totalVotes;
     uint public startTime;
     uint public endTime;
     address[] public voterAddresses;
@@ -50,12 +51,14 @@ contract Ballot {
 
     // proposals can represent a candidate, bill, law, etc.
     function registerProposal(string memory _name) external onlyOwner {
+        require(isActive(), "Ballot has ended");
         totalProposals++;
         proposals[totalProposals] = Proposal(totalProposals, _name, 0);
         emit ProposalRegistered(totalProposals, _name);
     }
 
     function authorizeVoter(address _voter) external onlyOwner {
+        require(isActive(), "Ballot has ended");
         require(!voters[_voter].authorized, "Voter is already authorized");
 
         // add voter to list if not already
@@ -75,6 +78,7 @@ contract Ballot {
     }
 
     function revokeVoter(address _voter) external onlyOwner {
+        require(isActive(), "Ballot has ended");
         require(voters[_voter].authorized, "Voter is not authorized");
 
         // Decrement vote
@@ -104,6 +108,7 @@ contract Ballot {
         voters[msg.sender].voted = true;
         voters[msg.sender].proposalId = _proposalId;
         proposals[_proposalId].voteCount++;
+        totalVotes++;
         emit Voted(msg.sender, _proposalId);
     }
 
@@ -125,25 +130,33 @@ contract Ballot {
         return proposalList;
     }
 
-    function getWinner()
-        external
-        view
-        returns (string memory winnerName, uint voteCount)
-    {
+    function getWinners() external view returns (string memory winners) {
         require(!isActive(), "Ballot is still active");
+        require(totalProposals > 0, "No proposals registered");
+        require(totalVotes > 0, "No votes have been cast");
 
         uint winningVoteCount = 0;
-        uint winningProposalId = 0;
+        string memory separator = ", ";
 
+        // Find the highest vote count
         for (uint i = 1; i <= totalProposals; i++) {
             if (proposals[i].voteCount > winningVoteCount) {
                 winningVoteCount = proposals[i].voteCount;
-                winningProposalId = i;
             }
         }
 
-        winnerName = proposals[winningProposalId].name;
-        voteCount = proposals[winningProposalId].voteCount;
+        // Collect all proposals with the highest vote count
+        for (uint i = 1; i <= totalProposals; i++) {
+            if (proposals[i].voteCount == winningVoteCount) {
+                if (bytes(winners).length > 0) {
+                    winners = string(
+                        abi.encodePacked(winners, separator, proposals[i].name)
+                    );
+                } else {
+                    winners = proposals[i].name;
+                }
+            }
+        }
     }
 
     function isActive() public view returns (bool) {
