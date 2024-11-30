@@ -69,7 +69,7 @@ async function displayBallotDetails(item) {
 
     // populate input fields
     let content = `
-    <h2>${item.querySelector('span').textContent}</h2>
+    <h2>${ballot.name}</h2>
     
     <!-- Authorize Input Field -->
     <div class="input-field">

@@ -24,9 +24,17 @@ export async function authorizedTabClick() {
     // populate ballot list
     let content = '<div class="scrollable-box"><div class="item-list">';
     for (const ballot of myBallots) {
+
+        // returns "N/A" if the voter has not voted
+        const voterProposalName = await getVoterProposalName(userAccount, ballot.address);
+        const statusIcon = voterProposalName == "N/A"
+        ? '<span class="status-icon not-voted">○</span>'
+        : '<span class="status-icon voted">✔</span>';
+
         content += `
             <div class="item" data-address="${ballot.address}">
-                <span>${ballot.name}</span>
+                <span>${ballot.name} ${statusIcon}</span>
+                
                 <span class="subscript">Ends ${ballot.endTime}</span>
             </div>
         `;
@@ -43,7 +51,7 @@ export async function authorizedTabClick() {
         // check if the clicked element is a ballot item
         if (event.target.closest('.item')) {
             const ballot = event.target.closest('.item');
-            displayBallotVoting(ballot);
+            displayBallotDetails(ballot);
         }
     });
 
@@ -51,7 +59,7 @@ export async function authorizedTabClick() {
     contentContainer.appendChild(authroizedContent);
 }
 
-async function displayBallotVoting(ballotItem) {
+async function displayBallotDetails(ballotItem) {
     const ballotAddress = ballotItem.getAttribute('data-address');
     const ballot = await loadBallotDetails(ballotAddress);
 
@@ -69,7 +77,7 @@ async function displayBallotVoting(ballotItem) {
     // populate input fields
     let content = `
     <!-- Ballot Name -->
-    <h2>${ballotItem.querySelector('span').textContent}</h2>
+    <h2>${ballot.name}</h2>
     
     <!-- Proposals List -->
     <h2>Proposals</h2>
@@ -168,5 +176,5 @@ async function voteButtonClick(proposalName, ballot) {
     await vote(proposalName, ballotAddress);
 
     // refresh display
-    displayBallotVoting(ballot);
+    displayBallotDetails(ballot);
 }

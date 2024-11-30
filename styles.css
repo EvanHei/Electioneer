@@ -219,3 +219,15 @@ button:disabled {
     border-radius: 10px;
     background-color: rgb(50, 50, 50);
 }
+
+.status-icon {
+    font-size: 1em;
+}
+
+.status-icon.voted {
+    color: green;
+}
+
+.status-icon.not-voted {
+    color: #ddd;
+}
