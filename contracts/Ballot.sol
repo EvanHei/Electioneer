@@ -52,6 +52,16 @@ contract Ballot {
     // proposals can represent a candidate, bill, law, etc.
     function registerProposal(string memory _name) external onlyOwner {
         require(isActive(), "Ballot has ended");
+
+        // disallow duplicate names
+        for (uint i = 1; i <= totalProposals; i++) {
+            require(
+                keccak256(abi.encodePacked(proposals[i].name)) !=
+                    keccak256(abi.encodePacked(_name)),
+                "Proposal name already exists"
+            );
+        }
+
         totalProposals++;
         proposals[totalProposals] = Proposal(totalProposals, _name, 0);
         emit ProposalRegistered(totalProposals, _name);

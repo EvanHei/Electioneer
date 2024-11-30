@@ -116,7 +116,7 @@ async function displayBallotDetails(item) {
     <div class="scrollable-box">
     `;
 
-    // TODO: show votes to the right of each list item
+    // TODO: show vote count as subscript
     // populate proposal list
     if (proposalNames && proposalNames.length > 0) {
         proposalNames.forEach((proposalName) => {
@@ -203,8 +203,6 @@ async function authorizeArrowButtonClick(item) {
     // authorize address
     await authorizeVoter(voterAddress, ballotAddress);
 
-    // TODO: show an error message if the voter is already authorized
-
     // clear input
     authorizeInput.value = "";
 
@@ -245,6 +243,14 @@ async function newProposalArrowClick(item) {
     const isValidInput = /^[A-Za-z0-9\s]+$/.test(newProposalInput.trim()) && newProposalInput.trim().length > 0;
     if (!isValidInput) {
         alert('Proposal can only contain letters, numbers, and spaces, and cannot be whitespace.');
+        return;
+    }
+
+    // ensure proposal isn't a duplicate
+    const proposals = await getProposals(ballotAddress);
+    const proposalNames = proposals.map(proposal => proposal.name);
+    if (proposalNames.includes(newProposalInput)) {
+        alert('Proposal already registered.');
         return;
     }
 
