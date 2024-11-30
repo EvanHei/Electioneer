@@ -1,4 +1,4 @@
-import { loadBallots, loadBallotDetails, getProposals, addProposal, authorizeVoter, revokeVoter, userAddress } from '../ethereum.js';
+import { loadBallots, loadBallotDetails, getProposals, addProposal, getProposalVoters, authorizeVoter, revokeVoter, userAddress } from '../ethereum.js';
 import { activateTab } from '../helpers.js';
 import { electioneer } from '../ethereum.js';
 
@@ -112,7 +112,7 @@ async function displayBallotDetails(item) {
     content += `
     <!-- Proposals List -->
     <h2>Proposals</h2>
-    <div class="scrollable-box">
+    <div class="scrollable-box" id="proposalList">
     `;
 
     // populate proposal list with names and votes
@@ -120,12 +120,14 @@ async function displayBallotDetails(item) {
         const proposalName = proposals[i].name;
         const voteCount = proposals[i].voteCount;
 
-        content += `
-        <div class="item">
+        const proposalItem = document.createElement('div');
+        proposalItem.classList.add('item');
+        proposalItem.innerHTML = `
             <span>${proposalName}</span>
             <span class="subscript">Votes: ${voteCount}</span>
-        </div>
         `;
+    
+        content += proposalItem.outerHTML;
     }
 
     // populate authorized addresses list
@@ -168,6 +170,14 @@ async function displayBallotDetails(item) {
     contentContainer.innerHTML = '';
     contentContainer.appendChild(ballotDetailsContent);
 
+    // configure proposal clicks
+    const proposalItems = document.querySelectorAll('#proposalList .item');
+    proposalItems.forEach((proposalItem, index) => {
+        proposalItem.onclick = () => {
+            proposalClick(proposals[index], ballotAddress, item);
+        };
+    });
+
     // configure Back button
     document.getElementById("backButton").onclick = myBallotsTabClick;
 
@@ -177,6 +187,45 @@ async function displayBallotDetails(item) {
         document.getElementById("revokeArrowButton").onclick = () => revokeArrowClick(item);
         document.getElementById("newProposalArrowButton").onclick = () => newProposalArrowClick(item);
     }
+}
+
+async function proposalClick(proposal, ballotAddress, item) {
+    const voters = await getProposalVoters(proposal.id, ballotAddress);
+
+    // create a new element for proposal voters content
+    const proposalVotersContent = document.createElement('div');
+    proposalVotersContent.classList.add('content');
+
+    let content = `<h2>${proposal.name}</h2>`;
+
+    content += `
+    <!-- Voters List -->
+    <h2>Voters</h2>
+    <div class="scrollable-box" id="votersList">
+    `;
+
+    // populate voters list with addresses
+    voters.forEach(voter => {
+        content += `
+            <div class="item">
+                <span>${voter}</span>
+            </div>
+        `;
+    });
+    content += `
+        </div>
+    `;
+
+    // add Back button
+    content += `</div><button class="button" id="backButton">Back</button>
+    `;
+
+    proposalVotersContent.innerHTML = content;
+    contentContainer.innerHTML = '';
+    contentContainer.appendChild(proposalVotersContent);
+
+    // configure Back button
+    document.getElementById("backButton").onclick = () => displayBallotDetails(item);
 }
 
 async function authorizeArrowButtonClick(item) {

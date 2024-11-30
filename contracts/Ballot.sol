@@ -140,6 +140,41 @@ contract Ballot {
         return proposalList;
     }
 
+    function getProposalVoters(
+        uint _proposalId
+    ) external view returns (address[] memory) {
+        require(
+            _proposalId > 0 && _proposalId <= totalProposals,
+            "Invalid proposal ID"
+        );
+
+        // count the number of proposal votes
+        uint votersCount = 0;
+        for (uint i = 0; i < voterAddresses.length; i++) {
+            if (
+                voters[voterAddresses[i]].voted &&
+                voters[voterAddresses[i]].proposalId == _proposalId
+            ) {
+                votersCount++;
+            }
+        }
+
+        // populate an array to store addresses
+        address[] memory proposalVoters = new address[](votersCount);
+        uint index = 0;
+        for (uint i = 0; i < voterAddresses.length; i++) {
+            if (
+                voters[voterAddresses[i]].voted &&
+                voters[voterAddresses[i]].proposalId == _proposalId
+            ) {
+                proposalVoters[index] = voterAddresses[i];
+                index++;
+            }
+        }
+
+        return proposalVoters;
+    }
+
     function getWinners() external view returns (string memory winners) {
         require(!isActive(), "Ballot is still active");
         require(totalProposals > 0, "No proposals registered");

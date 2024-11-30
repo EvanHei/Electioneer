@@ -2,7 +2,7 @@ export var electioneer;
 export var userAddress;
 
 // contract address must be updated to match Ganache
-const ELECTIONEER_CONTRACT_ADDRESS = "0x2bED36DC02e4E08b4675BB486d076De1Fd0B668f";
+const ELECTIONEER_CONTRACT_ADDRESS = "0x251C7e26A9118E4BeB4628bf91E110385958004E";
 const ELECTIONEER_ABI_PATH = "build/contracts/Electioneer.json";
 const BALLOT_ABI_PATH = "build/contracts/Ballot.json";
 
@@ -137,6 +137,17 @@ export async function getProposals(ballotAddress) {
         return transaction;
     } catch (error) {
         console.error("Failed to get proposals:", error.message);
+    }
+}
+
+// get all voters who voted for a proposal
+export async function getProposalVoters(proposalId, ballotAddress) {
+    try {      
+        let ballot = await loadBallotContract(ballotAddress);
+        const transaction = await ballot.methods.getProposalVoters(proposalId).call();
+        return transaction;
+    } catch (error) {
+        console.error("Failed to get proposal voters:", error.message);
     }
 }
 
