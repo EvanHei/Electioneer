@@ -9,6 +9,10 @@ export async function allTabClick() {
     // TODO: add a search bar here
 
     const ballots = await loadBallots();
+
+    // sort so the ballots with the latest expiration date are at the top
+    ballots.sort((a, b) => new Date(b.endTime) - new Date(a.endTime));
+
     let content = '<div class="scrollable-box"><div class="item-list">';
     for (const ballot of ballots) {
         content += `

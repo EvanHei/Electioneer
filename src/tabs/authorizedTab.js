@@ -21,6 +21,9 @@ export async function authorizedTabClick() {
         }
     }
 
+    // sort so the ballots with the latest expiration date are at the top
+    myBallots.sort((a, b) => new Date(b.endTime) - new Date(a.endTime));
+
     // populate ballot list
     let content = '<div class="scrollable-box"><div class="item-list">';
     for (const ballot of myBallots) {
