@@ -1,5 +1,5 @@
 export var electioneer;
-export var userAccount;
+export var userAddress;
 
 // contract address must be updated to match Ganache
 const ELECTIONEER_CONTRACT_ADDRESS = "0x596A905891D14D7e751628582f76397E9d4604dF";
@@ -25,14 +25,14 @@ export async function connectToEthereum() {
         window.web3 = new Web3(window.ethereum);
         try {
             const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-            userAccount = accounts[0];
+            userAddress = accounts[0];
         } catch (error) {
             console.error("User denied account access", error);
         }
     } else if (window.web3) {
         window.web3 = new Web3(window.web3.currentProvider);
         const accounts = await web3.eth.getAccounts();
-        userAccount = accounts[0];
+        userAddress = accounts[0];
     } else {
         console.log("Non-Ethereum browser detected. You should consider trying MetaMask!");
     }
@@ -122,7 +122,7 @@ export async function getVoterProposalName(voterAddress, ballotAddress) {
 export async function addProposal(proposal, ballotAddress) {
     try {
         let ballot = await loadBallotContract(ballotAddress);
-        await ballot.methods.registerProposal(proposal).send({ from: userAccount });
+        await ballot.methods.registerProposal(proposal).send({ from: userAddress });
         console.log("Registered proposal:", proposal);
     } catch (error) {
         console.error("Failed to add proposal:", error.message);
@@ -144,7 +144,7 @@ export async function getProposals(ballotAddress) {
 export async function authorizeVoter(voterAddress, ballotAddress) {
     try {
         let ballot = await loadBallotContract(ballotAddress);
-        await ballot.methods.authorizeVoter(voterAddress).send({ from: userAccount });
+        await ballot.methods.authorizeVoter(voterAddress).send({ from: userAddress });
         console.log("Authorized voter:", voterAddress);
     } catch (error) {
         console.error("Failed to authorize voter:", error.message);
@@ -155,7 +155,7 @@ export async function authorizeVoter(voterAddress, ballotAddress) {
 export async function revokeVoter(voterAddress, ballotAddress) {
     try {
         let ballot = await loadBallotContract(ballotAddress);
-        await ballot.methods.revokeVoter(voterAddress).send({ from: userAccount });
+        await ballot.methods.revokeVoter(voterAddress).send({ from: userAddress });
         console.log("Revoked voter:", voterAddress);
     } catch (error) {
         console.error("Failed to revoke voter:", error.message);
@@ -172,7 +172,7 @@ export async function vote(proposalName, ballotAddress) {
         const proposals = await getProposals(ballotAddress);
         const matchingProposal = proposals.find(proposal => proposal.name === proposalName);    
 
-        await ballot.methods.vote(matchingProposal.id).send({ from: userAccount });
+        await ballot.methods.vote(matchingProposal.id).send({ from: userAddress });
 
         console.log("Voted on ballot:", ballotAddress);
     } catch (error) {

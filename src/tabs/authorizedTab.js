@@ -1,4 +1,4 @@
-import { loadBallots, getProposals, loadBallotDetails, vote, getVoterProposalName, userAccount } from '../ethereum.js';
+import { loadBallots, getProposals, loadBallotDetails, vote, getVoterProposalName, userAddress } from '../ethereum.js';
 import { activateTab } from '../helpers.js';
 
 const contentContainer = document.getElementById("content");
@@ -16,7 +16,7 @@ export async function authorizedTabClick() {
 
     // filter ballots
     for (const ballot of ballots) {        
-        if (ballot.authorizedAddresses.some(voter => voter.toLowerCase() === userAccount.toLowerCase())) {
+        if (ballot.authorizedAddresses.some(voter => voter.toLowerCase() === userAddress.toLowerCase())) {
             myBallots.push(ballot);
         }
     }
@@ -26,7 +26,7 @@ export async function authorizedTabClick() {
     for (const ballot of myBallots) {
 
         // returns "N/A" if the voter has not voted
-        const voterProposalName = await getVoterProposalName(userAccount, ballot.address);
+        const voterProposalName = await getVoterProposalName(userAddress, ballot.address);
         const statusIcon = voterProposalName == "N/A"
         ? '<span class="status-icon not-voted">○</span>'
         : '<span class="status-icon voted">✔</span>';
@@ -72,7 +72,7 @@ async function displayBallotDetails(ballotItem) {
     const proposalNames = proposals.map(proposal => proposal.name);
 
     // check the proposal voted by the user
-    const voterProposalName = await getVoterProposalName(userAccount, ballotAddress);
+    const voterProposalName = await getVoterProposalName(userAddress, ballotAddress);
     
     // populate input fields
     let content = `

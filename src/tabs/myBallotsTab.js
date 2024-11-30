@@ -1,4 +1,4 @@
-import { loadBallots, loadBallotDetails, getProposals, addProposal, authorizeVoter, revokeVoter, userAccount } from '../ethereum.js';
+import { loadBallots, loadBallotDetails, getProposals, addProposal, authorizeVoter, revokeVoter, userAddress } from '../ethereum.js';
 import { activateTab } from '../helpers.js';
 import { electioneer } from '../ethereum.js';
 
@@ -14,7 +14,7 @@ export async function myBallotsTabClick() {
     // load and filter my ballots
     const ballots = await loadBallots();
     const myBallots = ballots.filter(
-        ballot => ballot.owner.toLowerCase() === userAccount.toLowerCase()
+        ballot => ballot.owner.toLowerCase() === userAddress.toLowerCase()
     );
 
     // build the ballot list
@@ -220,7 +220,7 @@ async function createButtonClick() {
 
     // create ballot
     try {
-        await electioneer.methods.createBallot(ballotName, duration).send({ from: userAccount });
+        await electioneer.methods.createBallot(ballotName, duration).send({ from: userAddress });
         alert('Ballot created successfully!');
     } catch (error) {
         console.error('Error creating ballot:', error);
