@@ -186,6 +186,20 @@ async function authorizeArrowButtonClick(item) {
     const voterAddress = authorizeInput.value;
     const ballotAddress = item.getAttribute('data-address');
 
+    // check if voter is already authorized
+    const ballot = await loadBallotDetails(ballotAddress);
+    if (ballot.authorizedAddresses.includes(voterAddress)) {
+        alert('Address is already authorized.');
+        return;
+    }
+    
+    // validate input
+    const isValidAddress = /^0x[a-fA-F0-9]{40}$/.test(voterAddress);
+    if (!isValidAddress) {
+        alert('Please enter a valid Ethereum address.');
+        return;
+    }
+
     // authorize address
     await authorizeVoter(voterAddress, ballotAddress);
 
@@ -204,6 +218,13 @@ async function revokeArrowClick(item) {
     const revokeInput = document.getElementById("revokeInput");
     const voterAddress = revokeInput.value;
     const ballotAddress = item.getAttribute('data-address');
+
+    // validate input
+    const isValidAddress = /^0x[a-fA-F0-9]{40}$/.test(voterAddress);
+    if (!isValidAddress) {
+        alert('Please enter a valid Ethereum address.');
+        return;
+    }
 
     // revoke voter
     await revokeVoter(voterAddress, ballotAddress);
