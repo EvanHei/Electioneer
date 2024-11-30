@@ -105,8 +105,8 @@ async function displayBallotDetails(ballotItem) {
         <div class="item">
             <span>${proposalName}</span>
             ${
-                isBallotActive
-                    ? '' // only disaply vote count if the ballot is over
+                isBallotActive // only display proposal votes if the ballot is over
+                    ? ''
                     : `<span class="subscript">Votes: ${voteCount}</span>`
             }
         </div>
@@ -123,6 +123,11 @@ async function displayBallotDetails(ballotItem) {
         <p><strong>Winner(s):</strong> ${ballot.winners}</p>
         <p><strong>Your Vote:</strong> ${voterProposalName}</p>
         <p><strong>Ends:</strong> ${ballot.endTime}</p>
+        ${
+            isBallotActive // only display vote count if the ballot is over
+                ? ''
+                : `<p><strong>Total Votes:</strong> ${ballot.totalVotes}</p>` 
+        }
     </div>
     `;
 
