@@ -77,10 +77,14 @@ async function displayBallotDetails(ballotItem) {
 
     // load proposals
     const proposals = await getProposals(ballotAddress);
-    const proposalNames = proposals.map(proposal => proposal.name);
 
-    // check the proposal voted by the user
+    // check the proposal voted on by the user
     const voterProposalName = await getVoterProposalName(userAddress, ballotAddress);
+
+    // check if the ballot is active
+    const currentTime = new Date();
+    const endDate = new Date(ballot.endTime);
+    const isBallotActive = endDate > currentTime;
     
     // populate input fields
     let content = `
@@ -92,15 +96,21 @@ async function displayBallotDetails(ballotItem) {
     <div class="scrollable-box">
     `;
 
-    // populate proposal list
-    if (proposalNames && proposalNames.length > 0) {
-        proposalNames.forEach((proposalName) => {
-            content += `
-            <div class="item">
-                ${proposalName}
-            </div>
-            `;
-        });
+    // populate proposal list with names and votes
+    for (let i = 0; i < proposals.length; i++) {
+        const proposalName = proposals[i].name;
+        const voteCount = proposals[i].voteCount;
+
+        content += `
+        <div class="item">
+            <span>${proposalName}</span>
+            ${
+                isBallotActive
+                    ? '' // only disaply vote count if the ballot is over
+                    : `<span class="subscript">Votes: ${voteCount}</span>`
+            }
+        </div>
+        `;
     }
 
     // populate details
@@ -158,9 +168,7 @@ async function displayBallotDetails(ballotItem) {
     contentContainer.appendChild(votingContent);
 
     // disable clicking if the voter already voted or if the ballot is over
-    const currentTime = new Date();
-    const endDate = new Date(ballot.endTime);
-    if (voterProposalName !== "N/A" || endDate < currentTime) {
+    if (voterProposalName !== "N/A" || !isBallotActive) {
         document.querySelectorAll('.item').forEach((item) => {
 
             // disable clicking

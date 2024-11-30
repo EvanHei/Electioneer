@@ -71,7 +71,6 @@ async function displayBallotDetails(item) {
     // load proposals
     const ballotAddress = item.getAttribute('data-address');
     const proposals = await getProposals(ballotAddress);
-    const proposalNames = proposals.map(proposal => proposal.name);
 
     // load specific ballot
     const ballot = await loadBallotDetails(ballotAddress);
@@ -116,17 +115,20 @@ async function displayBallotDetails(item) {
     <div class="scrollable-box">
     `;
 
-    // TODO: show vote count as subscript
-    // populate proposal list
-    if (proposalNames && proposalNames.length > 0) {
-        proposalNames.forEach((proposalName) => {
-            content += `
-            <div class="item">
-                ${proposalName}
-            </div>
-            `;
-        });
+    // populate proposal list with names and votes
+    for (let i = 0; i < proposals.length; i++) {
+        const proposalName = proposals[i].name;
+        const voteCount = proposals[i].voteCount;
+
+        content += `
+        <div class="item">
+            <span>${proposalName}</span>
+            <span class="subscript">Votes: ${voteCount}</span>
+        </div>
+        `;
     }
+
+    // populate authorized addresses list
     content += `
     </div>
 
@@ -134,8 +136,6 @@ async function displayBallotDetails(item) {
     <h2>Authorized Addresses</h2>
     <div class="scrollable-box">
     `;
-
-    // populate authorized addresses list
     ballot.authorizedAddresses.forEach((address) => {
         content += `
         <div class="item">
