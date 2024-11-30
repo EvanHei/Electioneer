@@ -30,7 +30,7 @@ export async function myBallotsTabClick() {
             <div class="item ${expiredClass}" data-address="${ballot.address}">
                 <span>${ballot.name}</span>
                 <span class="subscript">Ends ${ballot.endTime}</span>
-                <button class="wrench-button">🔧️</button>
+                <span class="item-icon">🔧️</span>
             </div>
         `;
     }
@@ -73,31 +73,41 @@ async function displayBallotDetails(item) {
     // load specific ballot
     const ballot = await loadBallotDetails(ballotAddress);
 
-    // populate input fields
-    let content = `
-    <h2>${ballot.name}</h2>
+    // determine if the ballot is expired
+    const currentTime = new Date();
+    const endDate = new Date(ballot.endTime);
+    const expired = endDate < currentTime;
     
-    <!-- Authorize Input Field -->
-    <div class="input-field">
-        <label for="authorizeInput">Authorize</label>
-        <input type="text" id="authorizeInput" placeholder="Public address">
-        <button id="authroizeArrowButton" class="input-arrow">→</button>
-    </div>
+    let content = `<h2>${ballot.name}</h2>`;
 
-    <!-- Revoke Input Field -->
-    <div class="input-field">
-        <label for="revokeInput">Revoke</label>
-        <input type="text" id="revokeInput" placeholder="Public address">
-        <button id="revokeArrowButton" class="input-arrow">→</button>
-    </div>
-
-    <!-- New Proposal Input Field -->
-    <div class="input-field">
-        <label for="newProposalInput">New Proposal</label>
-        <input type="text" id="newProposalInput" placeholder="Candidate, law, bill, ...">
-        <button id="newProposalArrowButton" class="input-arrow">→</button>
-    </div>
+    // populate input fields if the ballot isn't expired
+    if (!expired) {
+        content += `
+        <!-- Authorize Input Field -->
+        <div class="input-field">
+            <label for="authorizeInput">Authorize</label>
+            <input type="text" id="authorizeInput" placeholder="Public address">
+            <button id="authorizeArrowButton" class="input-arrow">→</button>
+        </div>
     
+        <!-- Revoke Input Field -->
+        <div class="input-field">
+            <label for="revokeInput">Revoke</label>
+            <input type="text" id="revokeInput" placeholder="Public address">
+            <button id="revokeArrowButton" class="input-arrow">→</button>
+        </div>
+    
+        <!-- New Proposal Input Field -->
+        <div class="input-field">
+            <label for="newProposalInput">New Proposal</label>
+            <input type="text" id="newProposalInput" placeholder="Candidate, law, bill, ...">
+            <button id="newProposalArrowButton" class="input-arrow">→</button>
+        </div>
+        `;
+    }    
+    
+    // add proposal list
+    content += `
     <!-- Proposals List -->
     <h2>Proposals</h2>
     <div class="scrollable-box">
@@ -158,10 +168,12 @@ async function displayBallotDetails(item) {
     // configure Back button
     document.getElementById("backButton").onclick = myBallotsTabClick;
 
-    // configure → buttons
-    document.getElementById("authroizeArrowButton").onclick = () => authorizeArrowButtonClick(item);
-    document.getElementById("revokeArrowButton").onclick = () => revokeArrowClick(item);
-    document.getElementById("newProposalArrowButton").onclick = () => newProposalArrowClick(item);
+    // configure → buttons if the ballot hasn't expired
+    if (!expired) {
+        document.getElementById("authorizeArrowButton").onclick = () => authorizeArrowButtonClick(item);
+        document.getElementById("revokeArrowButton").onclick = () => revokeArrowClick(item);
+        document.getElementById("newProposalArrowButton").onclick = () => newProposalArrowClick(item);
+    }
 }
 
 async function authorizeArrowButtonClick(item) {

@@ -167,7 +167,7 @@ body {
     margin-top: 3px;
 }
 
-.wrench-button {
+.item-icon {
     position: absolute;
     right: 10px;
     top: 50%;
@@ -176,7 +176,6 @@ body {
     border: none;
     font-size: 1.2em;
     padding: 5px;
-    transition: color 0.2s;
 }
 
 .button {
@@ -219,14 +218,10 @@ button:disabled {
     background-color: rgb(50, 50, 50);
 }
 
-.status-icon {
-    font-size: 1em;
-}
-
-.status-icon.voted {
+.item-icon.voted {
     color: green;
 }
 
-.status-icon.not-voted {
+.item-icon.not-voted {
     color: #ddd;
 }

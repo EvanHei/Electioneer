@@ -28,8 +28,8 @@ export async function authorizedTabClick() {
         // returns "N/A" if the voter has not voted
         const voterProposalName = await getVoterProposalName(userAddress, ballot.address);
         const statusIcon = voterProposalName == "N/A"
-        ? '<span class="status-icon not-voted">○</span>'
-        : '<span class="status-icon voted">✔</span>';
+        ? '<span class="item-icon not-voted">○</span>'
+        : '<span class="item-icon voted">✔</span>';
     
         // add the 'expired' class if the ballot is over
         const currentTime = new Date();
