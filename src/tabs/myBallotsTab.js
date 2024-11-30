@@ -221,6 +221,12 @@ async function newProposalArrowClick(item) {
     const newProposalInput = document.getElementById("newProposalInput").value;
     const ballotAddress = item.getAttribute('data-address');
 
+    const isValidInput = /^[A-Za-z0-9\s]+$/.test(newProposalInput.trim()) && newProposalInput.trim().length > 0;
+    if (!isValidInput) {
+        alert('Proposal can only contain letters, numbers, and spaces, and cannot be whitespace.');
+        return;
+    }
+
     // add proposal
     await addProposal(newProposalInput, ballotAddress);
 
