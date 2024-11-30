@@ -132,19 +132,7 @@ body {
     text-align: left;
     transition: color 0.2s;
     position: relative;
-}
-
-.wrench-button {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    font-size: 1.2em;
     cursor: pointer;
-    padding: 5px;
-    transition: color 0.2s;
 }
 
 .item::after {
@@ -164,9 +152,8 @@ body {
     opacity: 0.6;
 }
 
-.item.disabled:hover {
-    background-color: inherit;
-    cursor: not-allowed;
+.item.expired {
+    opacity: 0.6;
 }
 
 .item.selected {
@@ -178,6 +165,18 @@ body {
     color: rgba(255, 255, 255, 0.7);
     display: block;
     margin-top: 3px;
+}
+
+.wrench-button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    padding: 5px;
+    transition: color 0.2s;
 }
 
 .button {

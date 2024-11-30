@@ -30,9 +30,14 @@ export async function authorizedTabClick() {
         const statusIcon = voterProposalName == "N/A"
         ? '<span class="status-icon not-voted">○</span>'
         : '<span class="status-icon voted">✔</span>';
+    
+        // add the 'expired' class if the ballot is over
+        const currentTime = new Date();
+        const endDate = new Date(ballot.endTime);
+        const expiredClass = endDate < currentTime ? 'expired' : '';
 
         content += `
-            <div class="item" data-address="${ballot.address}">
+            <div class="item ${expiredClass}" data-address="${ballot.address}">
                 <span>${ballot.name} ${statusIcon}</span>
                 
                 <span class="subscript">Ends ${ballot.endTime}</span>

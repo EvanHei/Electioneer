@@ -20,8 +20,14 @@ export async function myBallotsTabClick() {
     // build the ballot list
     let content = '<div class="scrollable-box"><div class="item-list">';
     for (const ballot of myBallots) {
+
+        // add the 'expired' class if the ballot is over
+        const currentTime = new Date();
+        const endDate = new Date(ballot.endTime);
+        const expiredClass = endDate < currentTime ? 'expired' : '';
+        
         content += `
-            <div class="item" data-address="${ballot.address}">
+            <div class="item ${expiredClass}" data-address="${ballot.address}">
                 <span>${ballot.name}</span>
                 <span class="subscript">Ends ${ballot.endTime}</span>
                 <button class="wrench-button">🔧️</button>
@@ -136,6 +142,7 @@ async function displayBallotDetails(item) {
         <p><strong>Started:</strong> ${ballot.startTime}</p>
         <p><strong>Ends:</strong> ${ballot.endTime}</p>
         <p><strong>Authorized Voters:</strong> ${ballot.authorizedAddresses.length}</p>
+        <p><strong>Total Votes:</strong> ${ballot.totalVotes}</p>
         <p><strong>Proposals:</strong> ${proposals.length}</p>
     </div>
     `;
