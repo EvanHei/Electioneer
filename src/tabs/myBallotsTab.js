@@ -322,11 +322,13 @@ async function newButtonClick() {
         <input type="text" id="nameInput" placeholder="Name">
     </div>
 
-    <!-- Duration Input Field -->
+    <!-- End Date and Time Selection -->
     <div class="input-field">
-        <label for="durationInput">Duration (minutes)</label>
-        <input type="number" id="durationInput" placeholder="Enter duration in minutes" min="1">
+        <label for="endDateInput">Ending Time</label>
+        <input type="datetime-local" id="endDateInput">
     </div>
+
+    <!-- Create Button -->
     <button class="button" id="createButton">Create</button>`;
 
     ballotCreationContent.innerHTML = content;
@@ -341,7 +343,7 @@ async function newButtonClick() {
 async function createButtonClick() {
 
     const name = document.getElementById('nameInput').value.trim();
-    const durationInMinutes = document.getElementById('durationInput').value.trim();
+    const endDateInput = document.getElementById('endDateInput').value;
 
     // validate name
     const isValidName = /^[A-Za-z0-9\s]+$/.test(name.trim()) && name.trim().length > 0;
@@ -350,16 +352,23 @@ async function createButtonClick() {
         return;
     }
 
-    // validate duration
-    if (!durationInMinutes || isNaN(durationInMinutes) || parseInt(durationInMinutes, 10) < 1) {
-        alert('Please enter a valid duration in minutes (must be at least 1).');
+    // validate end date
+    const endDate = new Date(endDateInput);
+    const currentDate = new Date();
+    if (!endDateInput) {
+        alert("Please select a valid end date and time.");
+        return;
+    }
+    if (endDate <= currentDate) {
+        alert("End date must be in the future.");
         return;
     }
 
-    const duration = parseInt(durationInMinutes, 10);
+    // calculate duration in minutes
+    const durationInMinutes = Math.floor((endDate - currentDate) / (1000 * 60));
 
     // create ballot
-    await createBallot(name, duration);
+    await createBallot(name, durationInMinutes);
 
     // refresh list
     myBallotsTab.click();
