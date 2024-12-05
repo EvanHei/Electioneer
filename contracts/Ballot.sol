@@ -101,7 +101,7 @@ contract Ballot {
             proposals[proposalId].voteCount--;
         }
 
-        // Revoke authorization
+        // revoke authorization
         voters[_voter].authorized = false;
         voters[_voter].voted = false;
         emit VoterRevoked(_voter);

@@ -1,4 +1,4 @@
-import { loadBallots, getProposals, loadBallotDetails, vote, getVoterProposalName, userAddress } from '../ethereum.js';
+import { loadBallots, getProposals, loadBallotDetails, vote, getVoterProposalName, getProposalVoters, userAddress } from '../ethereum.js';
 import { activateTab } from '../helpers.js';
 
 const contentContainer = document.getElementById("content");
@@ -93,7 +93,7 @@ async function displayBallotDetails(ballotItem) {
     
     <!-- Proposals List -->
     <h2>Proposals</h2>
-    <div class="scrollable-box">
+    <div class="scrollable-box" id="proposalList">
     `;
 
     // populate proposal list with names and votes
@@ -148,48 +148,82 @@ async function displayBallotDetails(ballotItem) {
     const voteButton = votingContent.querySelector('#voteButton');
     voteButton.disabled = true;
 
-    let selectedProposal = null;
-
-    // configure proposal clicks
-    votingContent.addEventListener('click', (event) => {
-        const proposal = event.target.closest('.item');
-        if (proposal) {
-            // remove highlighting from all proposals
-            document.querySelectorAll('.item.selected').forEach((element) => {
-                element.classList.remove('selected');
-            });
-
-            // highlight selected proposal
-            proposal.classList.add('selected');
-
-            selectedProposal = proposal;
-
-            // enable Vote button
-            voteButton.disabled = false;
-        }
-    });
-
     contentContainer.innerHTML = '';
     contentContainer.appendChild(votingContent);
 
-    // disable clicking if the voter already voted or if the ballot is over
-    if (voterProposalName !== "N/A" || !isBallotActive) {
-        document.querySelectorAll('.item').forEach((item) => {
-
-            // disable clicking
-            item.classList.add('disabled');
-            voteButton.disabled = true;
-
-            // highlight the voted proposal
-            if (item.textContent.trim() === voterProposalName) {
-                item.classList.add('selected');
+    // configure proposal clicks for voting if ballot is active
+    let selectedProposal = null;
+    if (isBallotActive) {
+        votingContent.addEventListener('click', (event) => {
+            const proposal = event.target.closest('.item');
+            if (proposal) {
+                // remove highlighting from all proposals
+                document.querySelectorAll('.item.selected').forEach((element) => {
+                    element.classList.remove('selected');
+                });
+    
+                // highlight selected proposal
+                proposal.classList.add('selected');
+    
+                selectedProposal = proposal;
+    
+                // enable Vote button
+                voteButton.disabled = false;
             }
         });
     }
-    
+    // configure proposal clicks to view voters if ballot is over
+    else {
+        const proposalItems = document.querySelectorAll('#proposalList .item');
+        proposalItems.forEach((proposalItem, index) => {
+            proposalItem.onclick = () => {
+                proposalClick(proposals[index], ballotAddress, ballotItem);
+            };
+        });
+    }
+        
     // configure buttons
     document.getElementById("backButton").onclick = authorizedTabClick;
     document.getElementById("voteButton").onclick = () => voteButtonClick(selectedProposal.innerText, ballotItem);
+}
+
+async function proposalClick(proposal, ballotAddress, item) {
+    const voters = await getProposalVoters(proposal.id, ballotAddress);
+
+    // create a new element for proposal voters content
+    const proposalVotersContent = document.createElement('div');
+    proposalVotersContent.classList.add('content');
+
+    let content = `<h2>${proposal.name}</h2>`;
+
+    content += `
+    <!-- Voters List -->
+    <h2>Voters</h2>
+    <div class="scrollable-box" id="votersList">
+    `;
+
+    // populate voters list with addresses
+    voters.forEach(voter => {
+        content += `
+            <div class="item">
+                <span>${voter}</span>
+            </div>
+        `;
+    });
+    content += `
+        </div>
+    `;
+
+    // add Back button
+    content += `</div><button class="button" id="backButton">Back</button>
+    `;
+
+    proposalVotersContent.innerHTML = content;
+    contentContainer.innerHTML = '';
+    contentContainer.appendChild(proposalVotersContent);
+
+    // configure Back button
+    document.getElementById("backButton").onclick = () => displayBallotDetails(item);
 }
 
 async function voteButtonClick(proposalName, ballot) {
