@@ -1,6 +1,5 @@
-import { loadBallots, loadBallotDetails, getProposals, addProposal, getProposalVoters, authorizeVoter, revokeVoter, userAddress } from '../ethereum.js';
+import { loadBallots, loadBallotDetails, createBallot, getProposals, addProposal, getProposalVoters, authorizeVoter, revokeVoter, userAddress } from '../ethereum.js';
 import { activateTab } from '../helpers.js';
-import { electioneer } from '../ethereum.js';
 
 const contentContainer = document.getElementById("content");
 
@@ -39,7 +38,7 @@ export async function myBallotsTabClick() {
     }
     content += `
         </div></div>
-        <button class="button" id="createButton">Create</button>
+        <button class="button" id="newButton">New</button>
     `;
 
     myBallotsContent.innerHTML = content;
@@ -57,9 +56,9 @@ export async function myBallotsTabClick() {
     contentContainer.innerHTML = '';
     contentContainer.appendChild(myBallotsContent);
 
-    // Configure Create button
-    const createButton = document.getElementById('createButton');
-    createButton.onclick = createButtonClick;
+    // configure Create button
+    const newButton = document.getElementById('newButton');
+    newButton.onclick = newButtonClick;
 }
 
 async function displayBallotDetails(item) {
@@ -310,26 +309,58 @@ async function newProposalArrowClick(item) {
     await displayBallotDetails(item);
 }
 
-async function createButtonClick() {
-    // get input
-    const ballotName = window.prompt('Enter ballot name:');
-    const durationInMinutes = window.prompt('Enter duration in minutes:');
+async function newButtonClick() {
+
+    // create a new element for ballot creation content
+    const ballotCreationContent = document.createElement('div');
+    ballotCreationContent.classList.add('content');
     
-    // validate
-    if (!ballotName || !durationInMinutes) {
-        alert('Please enter both ballot name and duration.');
+    let content = `<h2>Create Ballot</h2>
+    <!-- Name Input Field -->
+    <div class="input-field">
+        <label for="nameInput">Name</label>
+        <input type="text" id="nameInput" placeholder="Name">
+    </div>
+
+    <!-- Duration Input Field -->
+    <div class="input-field">
+        <label for="durationInput">Duration (minutes)</label>
+        <input type="number" id="durationInput" placeholder="Enter duration in minutes" min="1">
+    </div>
+    <button class="button" id="createButton">Create</button>`;
+
+    ballotCreationContent.innerHTML = content;
+    contentContainer.innerHTML = '';
+    contentContainer.appendChild(ballotCreationContent);
+
+    // configure Create button
+    const createButton = document.getElementById('createButton');
+    createButton.onclick = () => createButtonClick();
+}
+
+async function createButtonClick() {
+
+    const name = document.getElementById('nameInput').value.trim();
+    const durationInMinutes = document.getElementById('durationInput').value.trim();
+
+    // validate name
+    const isValidName = /^[A-Za-z0-9\s]+$/.test(name.trim()) && name.trim().length > 0;
+    if (!isValidName) {
+        alert('Ballot name can only contain letters, numbers, and spaces, and cannot be whitespace.');
         return;
     }
+
+    // validate duration
+    if (!durationInMinutes || isNaN(durationInMinutes) || parseInt(durationInMinutes, 10) < 1) {
+        alert('Please enter a valid duration in minutes (must be at least 1).');
+        return;
+    }
+
     const duration = parseInt(durationInMinutes, 10);
 
     // create ballot
-    try {
-        await electioneer.methods.createBallot(ballotName, duration).send({ from: userAddress });
-        alert('Ballot created successfully!');
-    } catch (error) {
-        console.error('Error creating ballot:', error);
-        alert('Failed to create ballot.');
-    }
+    await createBallot(name, duration);
 
+    // refresh list
     myBallotsTab.click();
 }

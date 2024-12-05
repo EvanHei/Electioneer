@@ -100,6 +100,24 @@ export async function loadBallotDetails(ballotAddress) {
     }
 }
 
+// load a ballot contract
+async function loadBallotContract(ballotAddress) {
+    const ballotResponse = await fetch(BALLOT_ABI_PATH);
+    const ballotContractData = await ballotResponse.json();
+    var ballotAbi = ballotContractData.abi;        
+    let ballot = new web3.eth.Contract(ballotAbi, ballotAddress);
+    return ballot;
+}
+
+// create a new ballot
+export async function createBallot(name, duration) {
+    try {
+        await electioneer.methods.createBallot(name, duration).send({ from: userAddress });
+    } catch (error) {
+        console.error('Error creating ballot:', error);
+    }
+}
+
 // get the proposal a voter voted for
 export async function getVoterProposalName(voterAddress, ballotAddress) {
     try {
@@ -190,13 +208,4 @@ export async function vote(proposalName, ballotAddress) {
         console.error("Failed to vote:", error.message);
         return false;
     }
-}
-
-// load a ballot contract
-async function loadBallotContract(ballotAddress) {
-    const ballotResponse = await fetch(BALLOT_ABI_PATH);
-    const ballotContractData = await ballotResponse.json();
-    var ballotAbi = ballotContractData.abi;        
-    let ballot = new web3.eth.Contract(ballotAbi, ballotAddress);
-    return ballot;
 }
