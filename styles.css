@@ -8,34 +8,6 @@ body {
     color: white;
 }
 
-.search-bar {
-    width: 500px;
-    padding: 10px;
-    padding-left: 20px;
-    border: 1px solid transparent;
-    border-radius: 20px;
-    background-color: rgb(50, 50, 50);
-    color: white;
-    margin-bottom: 20px;
-    font-size: 16px;
-}
-
-.search-bar:focus {
-    outline: none;
-    border-color: #8B0000;
-}
-
-.search-bar::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.search-line {
-    width: 100vw;
-    height: 1px;
-    background-color: rgba(255, 255, 255, 0.5);
-    margin-bottom: 20px;
-}
-
 .input-field {
     width: 500px;
     position: relative;
