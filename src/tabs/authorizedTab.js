@@ -154,23 +154,40 @@ async function displayBallotDetails(ballotItem) {
     // configure proposal clicks for voting if ballot is active
     let selectedProposal = null;
     if (isBallotActive) {
-        votingContent.addEventListener('click', (event) => {
-            const proposal = event.target.closest('.item');
-            if (proposal) {
-                // remove highlighting from all proposals
-                document.querySelectorAll('.item.selected').forEach((element) => {
-                    element.classList.remove('selected');
-                });
-    
-                // highlight selected proposal
-                proposal.classList.add('selected');
-    
-                selectedProposal = proposal;
-    
-                // enable Vote button
-                voteButton.disabled = false;
-            }
-        });
+
+        // if the user has not voted
+        if (voterProposalName == "N/A") {
+            votingContent.addEventListener('click', (event) => {
+                const proposal = event.target.closest('.item');
+                if (proposal) {
+                    // remove highlighting from all proposals
+                    document.querySelectorAll('.item.selected').forEach((element) => {
+                        element.classList.remove('selected');
+                    });
+        
+                    // highlight selected proposal
+                    proposal.classList.add('selected');
+        
+                    selectedProposal = proposal;
+        
+                    // enable Vote button
+                    voteButton.disabled = false;
+                }
+            });
+        }
+        // if the user has voted
+        else {
+            document.querySelectorAll('.item').forEach((item) => {
+
+                // disable clicking
+                item.classList.add('disabled');
+                voteButton.disabled = true;
+                // highlight the voted proposal
+                if (item.textContent.trim() === voterProposalName) {
+                    item.classList.add('selected');
+                }
+            });
+        }
     }
     // configure proposal clicks to view voters if ballot is over
     else {
