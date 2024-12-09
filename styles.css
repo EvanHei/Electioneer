@@ -8,6 +8,13 @@ body {
     color: white;
 }
 
+.horizontal-line {
+    width: 100vw;
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 20px;
+}
+
 .input-field {
     width: 500px;
     position: relative;
